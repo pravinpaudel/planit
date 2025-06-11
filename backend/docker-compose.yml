@@ -1,0 +1,16 @@
+services:
+  postgres:
+    container_name: plane-db
+    image: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: threads
+      POSTGRES_DB: threads
+      POSTGRES_MULTIPLE_DATABASES: plane_db,threads
+
+volumes:
+  postgres_data:
