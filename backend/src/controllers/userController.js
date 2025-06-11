@@ -20,7 +20,7 @@ async function handleLogin(req, res) {
     }
 
     // Generate tokens
-    const tokens = await UserService.generateUserToken({ email: user.email });
+    const tokens = await UserService.generateUserToken({ id: user.id, email: user.email });
     res.status(200).json({ 
       message: "Login successful", 
       accessToken: tokens.accessToken,
@@ -37,10 +37,10 @@ async function handleRegister(req, res) {
     if (!req.body.email || !req.body.password || !req.body.firstName) {
       return res.status(400).json({ error: "All fields are required" });
     }
-    await UserService.createUser(req.body);
+    user = await UserService.createUser(req.body);
 
     // Generate token after successful registration
-    const tokens = await UserService.generateUserToken({ email: req.body.email });
+    const tokens = await UserService.generateUserToken({ id: user.id, email: user.email });
     res.status(201).json({ 
       message: "User registered successfully", 
       accessToken: tokens.accessToken,

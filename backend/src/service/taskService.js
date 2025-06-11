@@ -2,8 +2,8 @@ const { UserService } = require('./userService');
 const { prismaClient } = require('../utils/db');
 
 class TaskService {
-    static async createTask(payload) {
-        const { title, description, userId } = payload;
+    static async createTask(payload, userId) {
+        const { title, description } = payload;
         if (!title || !userId) {
             throw new Error("Title and userId are required");
         }
@@ -27,7 +27,7 @@ class TaskService {
                 }
             });
         } catch (error) {
-            throw new Error("Error creating task");
+            throw new Error("Error creating task: " + error.message);
         }
     }
 
@@ -45,7 +45,10 @@ class TaskService {
             
             return await prismaClient.task.findMany({
                 where: { userId },
-                orderBy: { createdAt: 'desc' }
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    milestones: true
+                }
             });
         } catch (error) {
             console.error("Error retrieving tasks:", error);

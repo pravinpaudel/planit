@@ -5,6 +5,7 @@ const { prismaClient } = require('./src/utils/db');
 
 const userRoute = require('./src/routes/userRoute');
 const taskRoute = require('./src/routes/taskRoute');
+const milestoneRoute = require('./src/routes/milestoneRoute');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -22,6 +23,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/users', userRoute);
 app.use('/api/tasks', taskRoute);
+app.use('/api/milestones', milestoneRoute);
 
 app.get('/', (req, res) => {
   res.send('Welcome to the backend server!');

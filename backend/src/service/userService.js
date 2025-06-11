@@ -64,14 +64,14 @@ class UserService {
     }
 
     static async generateUserToken(payload) {
-        const user = await UserService.getUserByEmail(payload.email);
-        if (!user) {
-            throw new Error("User not found");
-        }
+        //const user = await UserService.getUserByEmail(payload.email);
+        // if (!user) {
+        //     throw new Error("User not found");
+        // }
         
         // Generate access token with short expiry
         const accessToken = JWT.sign(
-            { id: user.id, email: user.email }, 
+            { id: payload.id, email: payload.email }, 
             process.env.JWT_SECRET, 
             { expiresIn: '1h' }
         );
@@ -83,7 +83,7 @@ class UserService {
         const expiresIn = '7d';
         const refreshToken = JWT.sign(
             { 
-                id: user.id,
+                id: payload.id,
                 jti // Include the token ID in the payload
             }, 
             process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET + '_refresh', 
@@ -98,7 +98,7 @@ class UserService {
         await prismaClient.refreshToken.create({
             data: {
                 token: jti, // Store the token ID, not the whole token
-                userId: user.id,
+                userId: payload.id,
                 expiresAt
             }
         });

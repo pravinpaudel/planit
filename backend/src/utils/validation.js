@@ -2,6 +2,8 @@
  * Validation utility functions for input validation
  */
 
+const MinimumLength = 8; // Minimum length for passwords
+
 /**
  * Validate email format
  * @param {string} email - Email to validate
@@ -23,9 +25,9 @@ function validatePassword(password) {
     errors: []
   };
 
-  if (!password || password.length < 8) {
+  if (!password || password.length < MinimumLength) {
     result.isValid = false;
-    result.errors.push('Password must be at least 8 characters long');
+    result.errors.push(`Password must be at least ${MinimumLength} characters long`);
   }
 
   const hasUpperCase = /[A-Z]/.test(password);
@@ -35,7 +37,7 @@ function validatePassword(password) {
 
   if (!(hasUpperCase && hasLowerCase && hasNumbers)) {
     result.isValid = false;
-    result.errors.push('Password must contain at least one uppercase letter, one lowercase letter, and one number');
+    result.errors.push(`Password must contain at least one uppercase letter, one lowercase letter, and one number`);
   }
 
   return result;

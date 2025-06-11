@@ -6,7 +6,6 @@ const {
     handleRefreshToken,
     handleLogout
 } = require('../controllers/userController');
-const { authenticateToken } = require('../middleware/authMiddleware');
 
 router.post('/login', handleLogin);
 router.post('/register', handleRegister);
