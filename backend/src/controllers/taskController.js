@@ -20,7 +20,7 @@ async function getUserTasks(req, res) {
 }
 async function updateTask(req, res) {
     try {
-        const taskId = req.params?.id;
+        const taskId = req.params?.taskId;
         const updatedTask = await TaskService.updateTask(taskId, req.body);
         res.status(200).json(updatedTask);
     } catch (error) {
@@ -29,7 +29,7 @@ async function updateTask(req, res) {
 }
 async function deleteTask(req, res) {
     try {
-        const taskId = req.params?.id;
+        const taskId = req.params?.taskId;
         await TaskService.deleteTask(taskId);
         res.status(204).send();
     } catch (error) {

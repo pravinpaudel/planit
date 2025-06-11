@@ -2,7 +2,6 @@ const { UserService } = require("../service/userService");
 
 async function handleLogin(req, res) {
   try {
-
     // Validate request body
     if (!req.body.email || !req.body.password) {
       return res.status(400).json({ error: "Email and password are required" });
@@ -20,9 +19,13 @@ async function handleLogin(req, res) {
       return res.status(401).json({ error: "Invalid password" });
     }
 
-    // Generate token
-    const token = await UserService.generateUserToken({ email: user.email });
-    res.status(200).json({ message: "Login successful", token });
+    // Generate tokens
+    const tokens = await UserService.generateUserToken({ email: user.email });
+    res.status(200).json({ 
+      message: "Login successful", 
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -37,8 +40,47 @@ async function handleRegister(req, res) {
     await UserService.createUser(req.body);
 
     // Generate token after successful registration
-    const token = await UserService.generateUserToken({ email: req.body.email });
-    res.status(201).json({ message: "User registered successfully", token });
+    const tokens = await UserService.generateUserToken({ email: req.body.email });
+    res.status(201).json({ 
+      message: "User registered successfully", 
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+async function handleRefreshToken(req, res) {
+  try {
+    // Validate request body
+    if (!req.body.refreshToken) {
+      return res.status(400).json({ error: "Refresh token is required" });
+    }
+
+    // Generate new access token
+    const tokens = await UserService.refreshAccessToken(req.body.refreshToken);
+    res.status(200).json({
+      message: "Token refreshed successfully",
+      accessToken: tokens.accessToken
+    });
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+}
+
+async function handleLogout(req, res) {
+  try {
+    const refreshToken = req.body.refreshToken;
+    
+    if (!refreshToken) {
+      return res.status(400).json({ error: "Refresh token is required" });
+    }
+    
+    // Revoke the token
+    await UserService.revokeRefreshToken(refreshToken);
+    
+    res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -46,5 +88,7 @@ async function handleRegister(req, res) {
 
 module.exports = {
   handleLogin,
-  handleRegister
+  handleRegister,
+  handleRefreshToken,
+  handleLogout
 };
