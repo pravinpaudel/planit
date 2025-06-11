@@ -6,6 +6,10 @@ const {
     updateTask,
     deleteTask
 } = require('../controllers/taskController');
+const { authenticateToken } = require('../middleware/authMiddleware');
+
+// Middleware to authenticate token for task routes
+//router.use(authenticateToken);
 
 router.get('/', getUserTasks);
 router.post('/', createTask);

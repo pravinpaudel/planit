@@ -1,4 +1,5 @@
 const { UserService } = require('./userService');
+const { prismaClient } = require('../utils/db');
 
 class TaskService {
     static async createTask(payload) {

@@ -30,7 +30,7 @@ class UserService {
         if (!user) {
             throw new Error("User not found");
         }
-        return JWT.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET);
+        return JWT.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1d' });
     }
 
     static async verifyUserToken(token) {
