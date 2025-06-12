@@ -25,7 +25,8 @@ export const RegisterForm = () => {
   } = useForm<RegisterFormInputs>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      name: '',
+      firstName: '',
+      lastName: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -45,14 +46,26 @@ export const RegisterForm = () => {
       )}
 
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-          Full Name
+        <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+          First Name
         </label>
         <Input
-          id="name"
-          error={errors.name?.message}
-          placeholder="John Doe"
-          {...register('name')}
+          id="firstName"
+          error={errors.firstName?.message}
+          placeholder="John"
+          {...register('firstName')}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+          Last Name
+        </label>
+        <Input
+          id="lastName"
+          error={errors.lastName?.message}
+          placeholder="Doe"
+          {...register('lastName')}
         />
       </div>
       

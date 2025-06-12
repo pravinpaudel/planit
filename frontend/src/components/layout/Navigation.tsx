@@ -39,7 +39,7 @@ export const Navigation = () => {
             {user ? (
               <div className="flex items-center space-x-6">
                 <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Welcome, {user.name}
+                  Welcome, {user.firstName}
                 </div>
                 <button
                   onClick={handleLogout}
@@ -103,7 +103,7 @@ export const Navigation = () => {
                 <>
                   <div className="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400">
                     <User size={18} className="mr-2 inline-block" />
-                    {user.name}
+                    {user.firstName}
                   </div>
                   <button
                     onClick={() => {

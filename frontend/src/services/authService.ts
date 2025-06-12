@@ -21,6 +21,10 @@ export const loginUser = async (credentials: LoginFormData) => {
   return await axiosInstance.post('/users/login', credentials);
 };
 
-export const getCurrentUser = async () => {
-  return await axiosInstance.get('/users/me');
+export const refreshAuthToken = async (refreshToken: string) => {
+  return await axiosInstance.post('/users/refresh-token', { refreshToken });
+};
+
+export const logoutUser = async (refreshToken: string) => {
+  return await axiosInstance.post('/users/logout', { refreshToken });
 };

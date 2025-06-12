@@ -1,20 +1,22 @@
 export interface User {
-  id: string;
-  name: string;
+  id?: string;
+  firstName: string;
+  lastName?: string;
   email: string;
-  createdAt: string;
 }
 
 export interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
 }
 
 export interface RegisterFormData {
-  name: string;
+  firstName: string;
+  lastName?: string;
   email: string;
   password: string;
   confirmPassword: string;

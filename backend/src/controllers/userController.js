@@ -23,6 +23,11 @@ async function handleLogin(req, res) {
     const tokens = await UserService.generateUserToken({ id: user.id, email: user.email });
     res.status(200).json({ 
       message: "Login successful", 
+      user: {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken
     });
@@ -43,6 +48,11 @@ async function handleRegister(req, res) {
     const tokens = await UserService.generateUserToken({ id: user.id, email: user.email });
     res.status(201).json({ 
       message: "User registered successfully", 
+      user: {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken
     });

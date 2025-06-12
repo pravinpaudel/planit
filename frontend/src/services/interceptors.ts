@@ -1,6 +1,6 @@
 import type { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 import { store } from '../store';
-import { logout } from '../features/auth/authSlice';
+import { logout, refreshToken } from '../features/auth/authSlice';
 import { addNotification } from '../store/uiSlice';
 
 export const setupInterceptors = (axiosInstance: AxiosInstance) => {
@@ -19,27 +19,104 @@ export const setupInterceptors = (axiosInstance: AxiosInstance) => {
     }
   );
 
+  // Keep track of whether we're refreshing the token
+  let isRefreshing = false;
+  // Store the requests that are waiting for token refresh
+  let failedQueue: { resolve: (token: string) => void; reject: (error: any) => void }[] = [];
+
+  const processQueue = (error: any, token: string | null = null) => {
+    failedQueue.forEach(prom => {
+      if (error) {
+        prom.reject(error);
+      } else {
+        prom.resolve(token!);
+      }
+    });
+    
+    failedQueue = [];
+  };
+
   // Response interceptor
   axiosInstance.interceptors.response.use(
     (response: AxiosResponse) => {
       return response;
     },
-    (error: AxiosError) => {
-      const { response } = error;
+    async (error: AxiosError) => {
+      const { response, config } = error;
       
-      if (response && response.status === 401) {
-        // Unauthorized - clear user data and redirect to login
-        store.dispatch(logout());
-        store.dispatch(
-          addNotification({
-            type: 'error',
-            message: 'Your session has expired. Please log in again.',
-          })
-        );
+      // If the error is due to an expired token
+      if (response && response.status === 401 && config) {
+        const originalRequest = config;
+        
+        // Check for token expired error (could be different based on backend response)
+        const isTokenExpired = response.data && 
+          (response.data as any).code === 'TOKEN_EXPIRED';
+        
+        if (isTokenExpired && !originalRequest.headers['X-Retry']) {
+          if (!isRefreshing) {
+            isRefreshing = true;
+            
+            try {
+              // Try to refresh the token
+              const action = await store.dispatch(refreshToken());
+              
+              if (refreshToken.fulfilled.match(action)) {
+                // Update headers for the original request
+                originalRequest.headers['Authorization'] = `Bearer ${action.payload.accessToken}`;
+                originalRequest.headers['X-Retry'] = 'true';
+                
+                // Process any requests in the queue
+                processQueue(null, action.payload.accessToken);
+                
+                // Retry the original request
+                return axiosInstance(originalRequest);
+              } else {
+                // Token refresh failed
+                processQueue(new Error('Failed to refresh token'));
+                store.dispatch(logout());
+                store.dispatch(
+                  addNotification({
+                    type: 'error',
+                    message: 'Your session has expired. Please log in again.',
+                  })
+                );
+                return Promise.reject(error);
+              }
+            } catch (refreshError) {
+              processQueue(refreshError);
+              return Promise.reject(refreshError);
+            } finally {
+              isRefreshing = false;
+            }
+          } else {
+            // If refresh is already in progress, add request to queue
+            return new Promise((resolve, reject) => {
+              failedQueue.push({
+                resolve: (token: string) => {
+                  originalRequest.headers['Authorization'] = `Bearer ${token}`;
+                  originalRequest.headers['X-Retry'] = 'true';
+                  resolve(axiosInstance(originalRequest));
+                },
+                reject: (err) => {
+                  reject(err);
+                },
+              });
+            });
+          }
+        } else if (!isTokenExpired) {
+          // For other 401 errors (not token expired)
+          store.dispatch(logout());
+          store.dispatch(
+            addNotification({
+              type: 'error',
+              message: 'Authentication error. Please log in again.',
+            })
+          );
+        }
       } else if (response) {
         // Handle other errors
         const errorMessage = 
-          (response.data as any)?.message || 'An unexpected error occurred';
+          (response.data as any)?.error || 'An unexpected error occurred';
         
         store.dispatch(
           addNotification({

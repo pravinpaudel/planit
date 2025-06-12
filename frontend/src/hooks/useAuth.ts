@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from './reduxHooks';
-import { getCurrentUser } from '../services/authService';
-import { setUser, logout } from '../features/auth/authSlice';
+import { logout } from '../features/auth/authSlice';
 import { addNotification } from '../store/uiSlice';
 
 /**
@@ -13,30 +12,22 @@ export const useAuth = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, isLoading, error } = useAppSelector((state) => state.auth);
 
-  // Fetch current user if token exists but user data doesn't
+  // Check if auth token exists
   useEffect(() => {
     const token = localStorage.getItem('token');
+    const refreshToken = localStorage.getItem('refreshToken');
     
-    const fetchCurrentUser = async () => {
-      if (token && !user) {
-        try {
-          const response = await getCurrentUser();
-          dispatch(setUser(response.data));
-        } catch (error) {
-          console.error('Failed to fetch current user:', error);
-          dispatch(logout());
-          dispatch(
-            addNotification({
-              type: 'error',
-              message: 'Your session has expired. Please log in again.',
-            })
-          );
-          navigate('/login');
-        }
-      }
-    };
-
-    fetchCurrentUser();
+    // If we have no token but user is still in state, logout
+    if (!token && !refreshToken && user) {
+      dispatch(logout());
+      dispatch(
+        addNotification({
+          type: 'error',
+          message: 'Your session has expired. Please log in again.',
+        })
+      );
+      navigate('/login');
+    }
   }, [dispatch, navigate, user]);
 
   return {

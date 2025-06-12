@@ -82,7 +82,7 @@ const DashboardPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              Welcome, {user?.name || 'User'}!
+              Welcome, {user?.firstName || 'User'}!
             </motion.h1>
             <motion.p 
               className="mt-1 text-gray-500 dark:text-gray-400"
@@ -152,7 +152,7 @@ const DashboardPage = () => {
         <AnimatePresence>
           {showWelcome && user && (
             <WelcomeOverlay
-              userName={user.name}
+              userName={user.firstName}
               onComplete={handleCompleteWelcome}
             />
           )}
