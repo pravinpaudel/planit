@@ -38,7 +38,7 @@ async function authenticateToken(req, res, next) {
                 code: "TOKEN_EXPIRED"
             });
         }
-        return res.status(403).json({ error: "Invalid token" });
+        return res.status(401).json({ error: "Invalid token" });
     }
 }
 

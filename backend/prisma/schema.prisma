@@ -57,7 +57,7 @@ model Milestone {
   id         String      @id @default(uuid())
   title       String
   description String
-  task       Task        @relation(fields: [taskId], references: [id])
+  task       Task        @relation(fields: [taskId], references: [id], onDelete: Cascade)
   taskId     String      @map("task_id")
   isComplete Boolean     @default(false)
   deadline   DateTime   

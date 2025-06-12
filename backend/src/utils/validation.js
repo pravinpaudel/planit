@@ -50,7 +50,8 @@ function validatePassword(password) {
  * @returns {boolean} True if valid, false otherwise
  */
 function hasMinLength(str, minLength) {
-  return str && str.length >= minLength;
+   
+  return Boolean(str) && str.length >= minLength;
 }
 
 module.exports = {
