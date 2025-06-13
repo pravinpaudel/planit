@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '../../components/ui/Button';
-import { ArrowRight, Lightbulb } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { useAppDispatch } from '../../hooks/reduxHooks';
 import { addNotification } from '../../store/uiSlice';
 
@@ -45,6 +45,7 @@ const WelcomeOverlay = ({ userName, onComplete }: WelcomeProps) => {
       dispatch(
         addNotification({
           type: 'success',
+          title: 'Getting Started',
           message: 'Welcome to PlanIt! Start by creating your first goal.',
         })
       );
@@ -101,14 +102,14 @@ const WelcomeOverlay = ({ userName, onComplete }: WelcomeProps) => {
             )}
             <Button onClick={handleNext}>
               {isLastStep ? 'Get Started' : 'Next'}
-              <ArrowRight size={16} className="ml-2" />
+              <CheckCircle size={16} className="ml-2" />
             </Button>
           </div>
         </div>
 
         {currentStep === 0 && (
           <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg flex items-start">
-            <Lightbulb className="h-5 w-5 text-amber-500 mr-2 flex-shrink-0 mt-0.5" />
+            <CheckCircle className="h-5 w-5 text-amber-500 mr-2 flex-shrink-0 mt-0.5" />
             <p className="text-sm text-amber-800 dark:text-amber-200">
               PlanIt helps you organize your goals into achievable milestones and tasks, so you can 
               track your progress and celebrate your wins along the way.

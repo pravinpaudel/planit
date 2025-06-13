@@ -77,6 +77,7 @@ export const setupInterceptors = (axiosInstance: AxiosInstance) => {
                 store.dispatch(
                   addNotification({
                     type: 'error',
+                    title: 'Session Expired',
                     message: 'Your session has expired. Please log in again.',
                   })
                 );
@@ -109,6 +110,7 @@ export const setupInterceptors = (axiosInstance: AxiosInstance) => {
           store.dispatch(
             addNotification({
               type: 'error',
+              title: 'Authentication Failed',
               message: 'Authentication error. Please log in again.',
             })
           );
@@ -121,6 +123,7 @@ export const setupInterceptors = (axiosInstance: AxiosInstance) => {
         store.dispatch(
           addNotification({
             type: 'error',
+            title: 'Request Error',
             message: errorMessage,
           })
         );
@@ -129,6 +132,7 @@ export const setupInterceptors = (axiosInstance: AxiosInstance) => {
         store.dispatch(
           addNotification({
             type: 'error',
+            title: 'Network Error',
             message: 'Network error. Please check your connection.',
           })
         );
