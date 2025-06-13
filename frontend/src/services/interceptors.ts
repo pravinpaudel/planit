@@ -107,18 +107,30 @@ export const setupInterceptors = (axiosInstance: AxiosInstance) => {
         } else if (!isTokenExpired) {
           // For other 401 errors (not token expired)
           store.dispatch(logout());
+          
+          // Extract error message from response with proper casting
+          const errorMessage = response.data ? 
+            ((response.data as any).error || 'Please log in again.') : 
+            'Please log in again.';
+            
           store.dispatch(
             addNotification({
               type: 'error',
               title: 'Authentication Failed',
-              message: 'Authentication error. Please log in again.',
+              message: errorMessage,
             })
           );
+          
+          // Add debugging for error response
+          console.log('Authentication error response:', response.data);
         }
       } else if (response) {
         // Handle other errors
-        const errorMessage = 
-          (response.data as any)?.error || 'An unexpected error occurred';
+        console.log('Error response data:', response.data);
+        
+        const errorMessage = response.data ? 
+          ((response.data as any).error || 'An unexpected error occurred') : 
+          'An unexpected error occurred';
         
         store.dispatch(
           addNotification({

@@ -5,25 +5,25 @@ import axiosInstance from './axiosInstance';
 export const milestoneService = {
   // Get all milestones for a specific plan
   getMilestones: async (planId: string): Promise<Milestone[]> => {
-    const response = await axiosInstance.get(`/api/milestones/${planId}`);
+    const response = await axiosInstance.get(`/milestones/${planId}`);
     return response.data;
   },
 
   // Create a new milestone
   createMilestone: async (milestoneData: CreateMilestoneData): Promise<Milestone> => {
-    const response = await axiosInstance.post(`/api/milestones`, milestoneData);
+    const response = await axiosInstance.post(`/milestones`, milestoneData);
     return response.data;
   },
 
   // Update an existing milestone
   updateMilestone: async (milestoneId: string, milestoneData: UpdateMilestoneData): Promise<Milestone> => {
-    const response = await axiosInstance.put(`/api/milestones/${milestoneId}`, milestoneData);
+    const response = await axiosInstance.put(`/milestones/${milestoneId}`, milestoneData);
     return response.data;
   },
 
   // Delete a milestone
   deleteMilestone: async (milestoneId: string): Promise<Milestone> => {
-    const response = await axiosInstance.delete(`/api/milestones/${milestoneId}`);
+    const response = await axiosInstance.delete(`/milestones/${milestoneId}`);
     return response.data;
   }
 };
