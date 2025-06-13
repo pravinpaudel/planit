@@ -61,6 +61,11 @@ model Milestone {
   taskId     String      @map("task_id")
   isComplete Boolean     @default(false)
   deadline   DateTime   
+  
+  // Self-relation for parent-child hierarchy
+  parentId   String?     @map("parent_id")
+  parent     Milestone?  @relation("MilestoneHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children   Milestone[] @relation("MilestoneHierarchy")
 
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt

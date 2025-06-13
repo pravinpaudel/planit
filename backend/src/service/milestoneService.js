@@ -11,7 +11,7 @@ class MilestoneService {
      * @returns {Promise<Object>} The created milestone object.
      */
     static async createMilestone(data) {
-        const { title, description, deadline, taskId } = data;
+        const { title, description, deadline, taskId, parentId } = data;
         if(!title || !description || !deadline || !taskId) {
             throw new Error('Missing required fields: title, description, deadline, taskId');
         }
@@ -24,7 +24,8 @@ class MilestoneService {
                     title,
                     description,
                     deadline: new Date(deadline),
-                    taskId
+                    taskId,
+                    parentId: parentId || null // Optional parent ID for sub-milestones
                 }
             });
         } catch (error) {
@@ -42,15 +43,22 @@ class MilestoneService {
             throw new Error("Task ID is required");
         }
         try {
-            return await prismaClient.milestone.findMany({
+            const milestones = await prismaClient.milestone.findMany({
                 where: { taskId },
+                include: {
+                    children: true
+                },
                 orderBy: { createdAt: 'asc' }
             });
+            
+            // Return only root level milestones (those with no parent)
+            return milestones.filter(milestone => !milestone.parentId);
+            
         } catch (error) {
             throw new Error("Error fetching milestones: " + error.message);
         }
     }
-
+    
     /**
      * Updates an existing milestone.
      * @param {number} milestoneId - The ID of the milestone to update.

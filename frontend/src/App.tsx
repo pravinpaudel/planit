@@ -27,6 +27,7 @@ function App() {
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="dashboard" element={<DashboardPage />} />
+            
             {/* Add more protected routes here as your app grows */}
           </Route>
           
