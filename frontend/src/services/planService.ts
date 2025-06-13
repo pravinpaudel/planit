@@ -9,9 +9,9 @@ export const planService = {
     return response.data;
   },
 
-  // Get all milestones for a specific plan
+  // Get a specific plan with its milestones
   getPlan: async (planId: string): Promise<Plan> => {
-    const response = await axiosInstance.get(`/milestones/${planId}`);
+    const response = await axiosInstance.get(`/tasks/${planId}`);
     return response.data;
   },
 
