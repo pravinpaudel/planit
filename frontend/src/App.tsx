@@ -7,6 +7,7 @@ import { ProtectedRoute, PublicRoute } from './components/shared/ProtectedRoute'
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
+import DesignSystemPage from './pages/design/DesignSystemPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { Notifications } from './components/shared/Notifications';
 
@@ -27,6 +28,7 @@ function App() {
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="design" element={<DesignSystemPage />} />
             
             {/* Add more protected routes here as your app grows */}
           </Route>

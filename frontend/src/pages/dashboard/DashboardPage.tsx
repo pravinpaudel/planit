@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppSelector } from '../../hooks/reduxHooks';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle, GlassCard } from '../../components/ui/Card';
 import { MainLayout } from '../../components/layout/MainLayout';
 import { Navigation } from '../../components/layout/Navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, CheckCircle, Clock, Target, Plus } from 'lucide-react';
 import WelcomeOverlay from '../../components/shared/WelcomeOverlay';
 import { Button } from '../../components/ui/Button';
+import { Badge } from '../../components/ui/Badge';
+import { AnimatedMilestoneCard } from '../../components/ui/MilestoneCard';
 import type { AuthState } from '../../types';
 
 const DashboardPage = () => {
@@ -103,7 +105,7 @@ const DashboardPage = () => {
           >
             {statsItems.map((item, i) => (
               <motion.div key={i} variants={itemVariants}>
-                <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300">
+                <GlassCard className="overflow-hidden hover:shadow-md transition-shadow duration-300">
                   <CardContent className="p-6">
                     <div className="flex items-center">
                       <div className={`p-3 rounded-lg ${item.color}`}>
@@ -119,18 +121,18 @@ const DashboardPage = () => {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
+                </GlassCard>
               </motion.div>
             ))}
           </motion.div>
 
           <motion.div 
-            className="mt-8"
+            className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
           >
-            <Card>
+            <Card className="col-span-1 md:col-span-2">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Upcoming Goals & Milestones</CardTitle>
                 <Link to="/plans">
@@ -141,10 +143,37 @@ const DashboardPage = () => {
                 </Link>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-10 text-gray-500 dark:text-gray-400">
-                  <p className="mb-4 font-medium">No upcoming goals or milestones yet</p>
+                {/* Example milestone card - would be replaced with real data */}
+                <div className="mb-4">
+                  <AnimatedMilestoneCard priority={2} className="p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium text-gray-900 dark:text-white">Example Milestone</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">This is what a milestone card looks like</p>
+                      </div>
+                      <Badge variant="secondary">Example</Badge>
+                    </div>
+                    <div className="mt-3 flex items-center justify-between">
+                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        <span>Due Tomorrow</span>
+                      </div>
+                      <Button variant="ghost" size="sm" className="h-7">View</Button>
+                    </div>
+                  </AnimatedMilestoneCard>
+                </div>
+                
+                {/* Empty state */}
+                <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+                  <p className="mb-6 font-medium">Ready to add more goals?</p>
+                  <div className="flex justify-center mb-4">
+                    <Badge variant="outline" className="mx-auto">
+                      <Plus className="h-3.5 w-3.5 mr-1" />
+                      Create a new goal
+                    </Badge>
+                  </div>
                   <p className="text-sm">
-                    Start by creating your first goal to track your progress
+                    Continue building your roadmap by adding more milestones
                   </p>
                 </div>
               </CardContent>
