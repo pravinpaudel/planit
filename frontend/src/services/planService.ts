@@ -5,31 +5,31 @@ import axiosInstance from './axiosInstance';
 export const planService = {
   // Get all plans
   getAllPlans: async (): Promise<Plan[]> => {
-    const response = await axiosInstance.get(`/api/tasks`);
+    const response = await axiosInstance.get(`/tasks`);
     return response.data;
   },
 
   // Get a single plan
   getPlan: async (planId: string): Promise<Plan> => {
-    const response = await axiosInstance.get(`/api/tasks/${planId}`);
+    const response = await axiosInstance.get(`/tasks/${planId}`);
     return response.data;
   },
 
   // Create a new plan
   createPlan: async (planData: CreatePlanData): Promise<Plan> => {
-    const response = await axiosInstance.post(`/api/tasks`, planData);
+    const response = await axiosInstance.post(`/tasks`, planData);
     return response.data;
   },
 
   // Update an existing plan
   updatePlan: async (planId: string, planData: UpdatePlanData): Promise<Plan> => {
-    const response = await axiosInstance.put(`/api/tasks/${planId}`, planData);
+    const response = await axiosInstance.put(`/tasks/${planId}`, planData);
     return response.data;
   },
 
   // Delete a plan
   deletePlan: async (planId: string): Promise<void> => {
-    await axiosInstance.delete(`/api/tasks/${planId}`);
+    await axiosInstance.delete(`/tasks/${planId}`);
   }
 };
 

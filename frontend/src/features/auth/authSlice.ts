@@ -19,7 +19,7 @@ export const register = createAsyncThunk(
       const response = await registerUser(userData);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to register');
+      return rejectWithValue(error.response?.data?.error || 'Failed to register');
     }
   }
 );
@@ -31,7 +31,7 @@ export const login = createAsyncThunk(
       const response = await loginUser(credentials);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to login');
+      return rejectWithValue(error.response?.data?.error || 'Failed to login');
     }
   }
 );
@@ -50,7 +50,7 @@ export const refreshToken = createAsyncThunk(
       const response = await refreshAuthToken(refreshTokenValue);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to refresh token');
+      return rejectWithValue(error.response?.data?.error || 'Failed to refresh token');
     }
   }
 );

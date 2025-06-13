@@ -7,7 +7,8 @@ import { Button } from '../ui/Button';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { login } from '../../features/auth/authSlice';
 import { Link } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye } from 'lucide-react';
+import { EyeOff } from 'lucide-react';
 import { usePasswordVisibility } from '../../hooks/useForm';
 
 export const LoginForm = () => {

@@ -10,12 +10,15 @@ import WelcomeOverlay from '../../components/shared/WelcomeOverlay';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { AnimatedMilestoneCard } from '../../components/ui/MilestoneCard';
+import Modal from '../../components/ui/Modal';
 import type { AuthState } from '../../types';
+import PlanForm from '../../components/forms/PlanForm';
 
 const DashboardPage = () => {
   const auth = useAppSelector((state) => state.auth as AuthState);
   const user = auth.user;
   const [showWelcome, setShowWelcome] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Check if this is the user's first visit
   useEffect(() => {
@@ -28,6 +31,18 @@ const DashboardPage = () => {
   const handleCompleteWelcome = () => {
     setShowWelcome(false);
     localStorage.setItem('hasSeenWelcome', 'true');
+  };
+
+  const handleOpenModal = () => {
+    // For now, we'll use a placeholder task ID
+    // In a real application, you would need to either:
+    // 1. Get the selected task ID from the UI
+    // 2. Create a new task first, then create a milestone for it
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
   // Animation variants for staggered animations
@@ -167,7 +182,11 @@ const DashboardPage = () => {
                 <div className="text-center py-6 text-gray-500 dark:text-gray-400">
                   <p className="mb-6 font-medium">Ready to add more goals?</p>
                   <div className="flex justify-center mb-4">
-                    <Badge variant="outline" className="mx-auto">
+                    <Badge 
+                      variant="outline" 
+                      className="mx-auto cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      onClick={handleOpenModal}
+                    >
                       <Plus className="h-3.5 w-3.5 mr-1" />
                       Create a new goal
                     </Badge>
@@ -189,6 +208,17 @@ const DashboardPage = () => {
             />
           )}
         </AnimatePresence>
+
+        {/* Milestone Form Modal */}
+        <Modal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          title="Create New Goal"
+        >
+          <PlanForm
+            onClose={handleCloseModal}
+          />
+        </Modal>
       </MainLayout>
     </>
   );
