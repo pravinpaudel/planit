@@ -9,7 +9,7 @@ const cardVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950',
+        default: 'border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950',
         glass: 'backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 border-white/20 shadow-md',
         elevated: 'border-gray-100 bg-white shadow-md dark:border-gray-800 dark:bg-gray-950',
         outlined: 'border-gray-200 bg-transparent dark:border-gray-700',
