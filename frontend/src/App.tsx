@@ -8,6 +8,9 @@ import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import DesignSystemPage from './pages/design/DesignSystemPage';
+import PlansPage from './pages/plans/PlansPage';
+import CreatePlanPage from './pages/plans/CreatePlanPage';
+import PlanDetailPage from './pages/plans/PlanDetailPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { Notifications } from './components/shared/Notifications';
 
@@ -29,6 +32,9 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="design" element={<DesignSystemPage />} />
+            <Route path="plans" element={<PlansPage />} />
+            <Route path="plans/create" element={<CreatePlanPage />} />
+            <Route path="plans/:planId" element={<PlanDetailPage />} />
             
             {/* Add more protected routes here as your app grows */}
           </Route>
