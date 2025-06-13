@@ -1,17 +1,5 @@
-import axios from 'axios';
 import type { LoginFormData, RegisterFormData } from '../types';
-import { setupInterceptors } from './interceptors';
-
-// Create axios instance
-const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8000/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Setup interceptors for handling auth token and errors
-setupInterceptors(axiosInstance);
+import axiosInstance from './axiosInstance';
 
 export const registerUser = async (userData: RegisterFormData) => {
   return await axiosInstance.post('/users/register', userData);

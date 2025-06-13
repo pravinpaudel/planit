@@ -46,3 +46,6 @@ export interface Notification {
   message: string;
   duration?: number;
 }
+
+// Re-export plan types
+export * from './plan';

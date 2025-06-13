@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAppSelector } from '../../hooks/reduxHooks';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { MainLayout } from '../../components/layout/MainLayout';
@@ -132,10 +133,12 @@ const DashboardPage = () => {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Upcoming Goals & Milestones</CardTitle>
-                <Button variant="outline" size="sm" className="h-8 gap-1">
-                  <Plus className="h-4 w-4" />
-                  Add Goal
-                </Button>
+                <Link to="/plans">
+                  <Button variant="outline" size="sm" className="h-8 gap-1">
+                    <Plus className="h-4 w-4" />
+                    Manage Plans
+                  </Button>
+                </Link>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-10 text-gray-500 dark:text-gray-400">
