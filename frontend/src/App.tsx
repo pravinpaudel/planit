@@ -11,6 +11,7 @@ import DesignSystemPage from './pages/design/DesignSystemPage';
 import PlansPage from './pages/plans/PlansPage';
 import CreatePlanPage from './pages/plans/CreatePlanPage';
 import PlanDetailPage from './pages/plans/PlanDetailPage';
+import RoadmapPage from './pages/plans/RoadmapPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { Notifications } from './components/shared/Notifications';
 
@@ -35,6 +36,7 @@ function App() {
             <Route path="plans" element={<PlansPage />} />
             <Route path="plans/create" element={<CreatePlanPage />} />
             <Route path="plans/:planId" element={<PlanDetailPage />} />
+            <Route path="plans/:planId/roadmap" element={<RoadmapPage />} />
             
             {/* Add more protected routes here as your app grows */}
           </Route>
