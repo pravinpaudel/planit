@@ -121,6 +121,27 @@ class TaskService {
             throw new Error("Error deleting task: " + error.message);
         }
     }
+
+    static async getTaskById(taskId) {
+        if(!taskId) {
+            throw new Error("Task ID is required");
+        }
+        try {
+            const task = await prismaClient.task.findUnique({
+                where: { id: taskId },
+                include: {
+                    milestones: true
+                }
+            });
+            if (!task) {
+                throw new Error("Task not found");
+            }
+            return task;
+        } catch (error) {
+            console.error("Error retrieving task:", error);
+            throw new Error("Error retrieving task: " + error.message);
+        }
+    }
 }
 
 module.exports = { TaskService };

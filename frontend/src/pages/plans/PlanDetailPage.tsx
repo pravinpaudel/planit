@@ -8,6 +8,7 @@ import { Button } from '../../components/ui/Button';
 import { Calendar, Clock, ArrowLeft, CheckCircle, Edit, Trash, Plus } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { fetchPlanById, deletePlan } from '../../features/plans/planSlice';
+import { Badge } from '../../components/ui/Badge';
 
 const PlanDetailPage = () => {
   const { planId } = useParams<{ planId: string }>();
@@ -154,13 +155,16 @@ const PlanDetailPage = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6"
           >
-            <Card>
-              <CardContent className="p-4 flex items-center">
+            <Card className="milestone-card animate-fade-in hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6 flex items-center">
                 <Calendar className="h-5 w-5 text-blue-500 mr-3" />
                 <div>
                   <div className="text-sm text-gray-500">Created</div>
                   <div className="font-medium">{formatDate(activePlan.createdAt)}</div>
                 </div>
+                <Badge variant="outline" className={`${'up' === 'up' ? 'text-green-600 border-green-200' : 'text-gray-500 border-gray-200'}`}>
+                      100
+                    </Badge>
               </CardContent>
             </Card>
             
