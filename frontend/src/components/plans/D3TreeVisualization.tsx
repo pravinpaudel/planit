@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import * as d3 from 'd3';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Milestone } from '../../types/plan';
 
 interface D3TreeVisualizationProps {
@@ -27,6 +27,7 @@ interface HierarchyData {
 const D3TreeVisualization = ({ milestones, onMilestoneClick, selectedMilestone }: D3TreeVisualizationProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const gRef = useRef<SVGGElement>(null);
+  const [zoomTransform, setZoomTransform] = useState<d3.ZoomTransform>(d3.zoomIdentity);
   
   // Find root nodes (nodes without parents or with null parentId)
   const findRootNodes = useCallback((milestones: Record<string, Milestone>): string[] => {
@@ -111,6 +112,147 @@ const D3TreeVisualization = ({ milestones, onMilestoneClick, selectedMilestone }
     };
   };
 
+  // Setup zoom behavior
+  const setupZoom = useCallback(() => {
+    if (!svgRef.current) return;
+    
+    const svg = d3.select(svgRef.current);
+    const g = d3.select(gRef.current);
+    
+    // Define zoom behavior
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.1, 3])  // Set min/max zoom scale
+      .on('zoom', (event) => {
+        g.attr('transform', event.transform.toString());
+        setZoomTransform(event.transform);
+      });
+    
+    // Apply zoom behavior to SVG
+    svg.call(zoom);
+    
+    // Add zoom controls
+    const zoomControlsContainer = svg.append('g')
+      .attr('class', 'zoom-controls')
+      .attr('transform', 'translate(20, 20)');
+    
+    // Add zoom in button
+    zoomControlsContainer.append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', 30)
+      .attr('height', 30)
+      .attr('rx', 5)
+      .attr('fill', 'white')
+      .attr('stroke', '#cbd5e1')
+      .style('cursor', 'pointer')
+      .on('click', () => {
+        zoom.scaleBy(svg.transition().duration(300), 1.3);
+      });
+    
+    zoomControlsContainer.append('text')
+      .attr('x', 15)
+      .attr('y', 20)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#0f172a')
+      .style('font-size', '18px')
+      .style('pointer-events', 'none')
+      .text('+');
+    
+    // Add zoom out button
+    zoomControlsContainer.append('rect')
+      .attr('x', 0)
+      .attr('y', 40)
+      .attr('width', 30)
+      .attr('height', 30)
+      .attr('rx', 5)
+      .attr('fill', 'white')
+      .attr('stroke', '#cbd5e1')
+      .style('cursor', 'pointer')
+      .on('click', () => {
+        zoom.scaleBy(svg.transition().duration(300), 0.7);
+      });
+    
+    zoomControlsContainer.append('text')
+      .attr('x', 15)
+      .attr('y', 60)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#0f172a')
+      .style('font-size', '22px')
+      .style('pointer-events', 'none')
+      .text('-');
+      
+    // Add fit button
+    zoomControlsContainer.append('rect')
+      .attr('x', 0)
+      .attr('y', 80)
+      .attr('width', 30)
+      .attr('height', 30)
+      .attr('rx', 5)
+      .attr('fill', 'white')
+      .attr('stroke', '#cbd5e1')
+      .style('cursor', 'pointer')
+      .on('click', () => {
+        // Fit view to content
+        if (!svgRef.current || !gRef.current) return;
+        
+        const svgRect = svgRef.current.getBoundingClientRect();
+        const gNode = gRef.current;
+        const gBounds = gNode.getBBox();
+        
+        // Calculate scale to fit the content
+        const scale = Math.min(
+          0.9 * svgRect.width / gBounds.width,
+          0.9 * svgRect.height / gBounds.height
+        );
+        
+        // Calculate translation to center the content
+        const translateX = (svgRect.width / 2) - ((gBounds.x + gBounds.width / 2) * scale);
+        const translateY = (svgRect.height / 2) - ((gBounds.y + gBounds.height / 2) * scale);
+        
+        // Apply the transform
+        svg.transition()
+          .duration(750)
+          .call(zoom.transform, d3.zoomIdentity.translate(translateX, translateY).scale(scale));
+      });
+    
+    zoomControlsContainer.append('text')
+      .attr('x', 15)
+      .attr('y', 100)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#0f172a')
+      .style('font-size', '12px')
+      .style('pointer-events', 'none')
+      .text('⤢');
+      
+    // Add reset button
+    zoomControlsContainer.append('rect')
+      .attr('x', 0)
+      .attr('y', 120)
+      .attr('width', 30)
+      .attr('height', 30)
+      .attr('rx', 5)
+      .attr('fill', 'white')
+      .attr('stroke', '#cbd5e1')
+      .style('cursor', 'pointer')
+      .on('click', () => {
+        // Reset to default view
+        svg.transition()
+          .duration(750)
+          .call(zoom.transform, d3.zoomIdentity);
+      });
+    
+    zoomControlsContainer.append('text')
+      .attr('x', 15)
+      .attr('y', 140)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#0f172a')
+      .style('font-size', '12px')
+      .style('pointer-events', 'none')
+      .text('⟲');
+      
+    return zoom;
+  }, []);
+
   // Render node visuals (rectangles, text, progress indicators)
   const renderNodeVisuals = (
     nodeGroups: d3.Selection<SVGGElement, d3.HierarchyPointNode<Milestone>, SVGGElement, unknown>,
@@ -162,7 +304,9 @@ const D3TreeVisualization = ({ milestones, onMilestoneClick, selectedMilestone }
     const svg = d3.select(svgRef.current);
     const g = d3.select(gRef.current);
     
+    // Clear previous content
     g.selectAll("*").remove();
+    svg.selectAll(".zoom-controls").remove();
 
     const hierarchy = createHierarchy();
     if (!hierarchy) return;
@@ -206,16 +350,62 @@ const D3TreeVisualization = ({ milestones, onMilestoneClick, selectedMilestone }
 
     // Add node visuals (rectangles, text, progress indicators)
     renderNodeVisuals(nodeGroups, selectedMilestone);
-  }, [milestones, selectedMilestone, createHierarchy, onMilestoneClick]);
+    
+    // Setup zoom functionality
+    setupZoom();
+    
+    // Center the visualization initially
+    if (nodes.length > 0) {
+      setTimeout(() => {
+        const svgNode = svgRef.current;
+        const gNode = gRef.current;
+        if (!svgNode || !gNode) return;
+        
+        const svgRect = svgNode.getBoundingClientRect();
+        const gBounds = gNode.getBBox();
+        
+        // Calculate scale to fit the content
+        const scale = Math.min(
+          0.9 * svgRect.width / gBounds.width,
+          0.9 * svgRect.height / gBounds.height
+        );
+        
+        // Calculate translation to center the content
+        const translateX = (svgRect.width / 2) - ((gBounds.x + gBounds.width / 2) * scale);
+        const translateY = (svgRect.height / 2) - ((gBounds.y + gBounds.height / 2) * scale);
+        
+        // Apply the transform
+        const zoom = d3.zoom<SVGSVGElement, unknown>().on('zoom', event => {
+          g.attr('transform', event.transform.toString());
+        });
+        
+        d3.select(svgNode)
+          .transition()
+          .duration(750)
+          .call(zoom.transform, d3.zoomIdentity.translate(translateX, translateY).scale(scale));
+      }, 100);
+    }
+  }, [milestones, selectedMilestone, createHierarchy, onMilestoneClick, setupZoom]);
 
   useEffect(() => {
     renderTree();
   }, [renderTree]);
 
+  // Add mouse wheel zoom instruction
+  const instructions = (
+    <div className="absolute bottom-4 left-4 bg-white p-2 rounded-md shadow-sm text-xs text-gray-600">
+      <p>⚙️ Pan: Click and drag</p>
+      <p>🔍 Zoom: Mouse wheel or use controls</p>
+    </div>
+  );
+
   return (
-    <svg ref={svgRef} className="w-full h-full">
-      <g ref={gRef}></g>
-    </svg>
+    <div className="relative w-full h-full">
+      <svg ref={svgRef} className="w-full h-full">
+        <g ref={gRef}></g>
+      </svg>
+      {instructions}
+    </div>
   );
 }
 
