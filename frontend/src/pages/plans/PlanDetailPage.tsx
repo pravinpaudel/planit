@@ -14,7 +14,7 @@ import MilestoneForm from '../../components/forms/MilestoneForm';
 import { Milestone } from '../../types';
 
 // Helper function to flatten milestone hierarchy
-const getAllMilestones = (milestones: Milestone[] = []): Milestone[] => {
+export const getAllMilestones = (milestones: Milestone[] = []): Milestone[] => {
     // Initialize an empty array to hold all milestones
     let allMilestones: Milestone[] = [];
     
