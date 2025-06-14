@@ -6,6 +6,7 @@ import type { Milestone } from '../../types';
 
 interface MilestoneFormProps {
   onClose: () => void;
+  onSuccess?: () => void;
   taskId: string;
   existingMilestone?: Milestone;
   parentOptions?: Array<{ id: string; title: string }>;
@@ -13,6 +14,7 @@ interface MilestoneFormProps {
 
 const MilestoneForm: React.FC<MilestoneFormProps> = ({ 
   onClose, 
+  onSuccess,
   taskId, 
   existingMilestone,
   parentOptions = []
@@ -83,6 +85,12 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
           parentId: parentId || undefined
         })).unwrap();
       }
+      
+      // Call onSuccess if provided
+      if (onSuccess) {
+        onSuccess();
+      }
+      
       onClose();
     } catch (error) {
       console.error('Error saving milestone:', error);

@@ -1,21 +1,64 @@
-import { useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MainLayout } from '../../components/layout/MainLayout';
 import { Navigation } from '../../components/layout/Navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Calendar, Clock, ArrowLeft, CheckCircle, Edit, Trash, Plus, Target } from 'lucide-react';
+import { Clock, ArrowLeft, CheckCircle, Edit, Trash, Plus, Target, Calendar } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { fetchPlanById, deletePlan } from '../../features/plans/planSlice';
 import { Badge } from '../../components/ui/Badge';
-import { TrendingUp } from 'lucide-react';
+import Modal from '../../components/ui/Modal';
+import MilestoneForm from '../../components/forms/MilestoneForm';
+import { Milestone } from '../../types';
+
+// Helper function to flatten milestone hierarchy
+const getAllMilestones = (milestones: Milestone[] = []): Milestone[] => {
+    // Initialize an empty array to hold all milestones
+    let allMilestones: Milestone[] = [];
+    
+    // Function to recursively gather milestones and their children
+    const gatherMilestones = (items: Milestone[]) => {
+        items.forEach(milestone => {
+            // Add the current milestone
+            allMilestones.push(milestone);
+            
+            // If this milestone has children, recursively gather them
+            if (milestone.children && milestone.children.length > 0) {
+                gatherMilestones(milestone.children);
+            }
+        });
+    };
+    
+    // Start the recursion with the top-level milestones
+    gatherMilestones(milestones);
+    
+    // Return the flattened array of all milestones
+    return allMilestones;
+};
 
 const PlanDetailPage = () => {
     const { planId } = useParams<{ planId: string }>();
     const dispatch = useAppDispatch();
     const { activePlan, isLoading, error } = useAppSelector(state => state.plan);
     const navigate = useNavigate();
+    const [showMilestoneModal, setShowMilestoneModal] = useState(false);
+    
+    const handleOpenMilestoneModal = () => {
+        setShowMilestoneModal(true);
+    };
+    
+    const handleCloseMilestoneModal = () => {
+        setShowMilestoneModal(false);
+    };
+    
+    const handleMilestoneSuccess = () => {
+        // Refresh plan data after milestone creation
+        if (planId) {
+            dispatch(fetchPlanById(planId));
+        }
+    };
 
     useEffect(() => {
         if (planId) {
@@ -103,16 +146,6 @@ const PlanDetailPage = () => {
             <MainLayout>
                 <div className="py-6">
                     <div className="mb-4">
-                        {/* <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => navigate('/plans')}
-              className="flex items-center gap-2 mb-4"
-            >
-              <ArrowLeft size={16} />
-              Back to Plans
-            </Button> */}
-
                         <div className="flex justify-between items-start">
                             <motion.div
                                 initial={{ opacity: 0, y: -10 }}
@@ -120,7 +153,6 @@ const PlanDetailPage = () => {
                                 transition={{ duration: 0.5 }}
                             >
                                 <h1 className="text-4xl font-semibold bg-clip-text text-gray-900 dark:text-white mb-1">
-
                                     {activePlan.title}
                                 </h1>
                                 <p className="text-gray-600 dark:text-gray-400">
@@ -175,7 +207,7 @@ const PlanDetailPage = () => {
                             <CardContent className="p-3">
                                 <div className="flex items-center justify-between mb-2">
                                     <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20">
-                                        <TrendingUp className="w-5 h-5 text-blue-500" />
+                                        <Calendar className="w-5 h-5 text-blue-500" />
                                     </div>
                                 </div>
                                 <div>
@@ -215,7 +247,7 @@ const PlanDetailPage = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <p className="text-xl font-bold mb-0.5">{activePlan.milestones.length}</p>
+                                    <p className="text-xl font-bold mb-0.5">{getAllMilestones(activePlan.milestones).length}</p>
                                     <p className="text-xs text-gray-600 dark:text-gray-400">Milestones</p>
                                 </div>
                             </CardContent>
@@ -233,7 +265,7 @@ const PlanDetailPage = () => {
                                 </div>
                                 <div>
                                     <p className="text-xl font-bold mb-0.5">
-                                        {activePlan.milestones.filter(m => m.isComplete).length} / {activePlan.milestones.length}
+                                        {getAllMilestones(activePlan.milestones).filter(m => m.isComplete).length} / {getAllMilestones(activePlan.milestones).length}
                                     </p>
                                     <p className="text-xs text-gray-600 dark:text-gray-400">Progress</p>
                                 </div>
@@ -253,7 +285,7 @@ const PlanDetailPage = () => {
                             <Button
                                 variant="default"
                                 size="sm"
-                                onClick={() => navigate(`/milestones/create/${activePlan.id}`)}
+                                onClick={handleOpenMilestoneModal}
                                 className="flex items-center gap-2"
                             >
                                 <Plus size={16} />
@@ -269,7 +301,7 @@ const PlanDetailPage = () => {
                                     </p>
                                     <Button
                                         variant="outline"
-                                        onClick={() => navigate(`/milestones/create/${activePlan.id}`)}
+                                        onClick={handleOpenMilestoneModal}
                                         className="flex items-center gap-2 mx-auto"
                                     >
                                         <Plus size={16} />
@@ -279,12 +311,14 @@ const PlanDetailPage = () => {
                             </Card>
                         ) : (
                             <div className="space-y-4">
-                                {activePlan.milestones.map((milestone) => (
+                                {/* Flatten the milestone structure to include both top-level and children */}
+                                {getAllMilestones(activePlan.milestones).map((milestone) => (
                                     <Card key={milestone.id} className={`transition-all ${milestone.isComplete ? 'bg-green-50 dark:bg-green-900/20' : ''}`}>
                                         <CardContent className="p-4">
                                             <div className="flex items-center justify-between">
                                                 <div>
                                                     <h3 className={`font-medium ${milestone.isComplete ? 'text-green-700 dark:text-green-400' : ''}`}>
+                                                        {milestone.parentId && <span className="mr-2 text-xs text-gray-500">↳</span>}
                                                         {milestone.title}
                                                     </h3>
                                                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -325,6 +359,25 @@ const PlanDetailPage = () => {
                         )}
                     </motion.div>
                 </div>
+                
+                {/* Milestone Modal */}
+                <Modal 
+                    isOpen={showMilestoneModal} 
+                    onClose={handleCloseMilestoneModal}
+                    title="Add New Milestone"
+                >
+                    {planId && activePlan && (
+                        <MilestoneForm 
+                            taskId={planId}
+                            onClose={handleCloseMilestoneModal}
+                            onSuccess={handleMilestoneSuccess}
+                            parentOptions={getAllMilestones(activePlan.milestones).map(milestone => ({
+                                id: milestone.id,
+                                title: milestone.parentId ? `↳ ${milestone.title}` : milestone.title
+                            }))}
+                        />
+                    )}
+                </Modal>
             </MainLayout>
         </>
     );
