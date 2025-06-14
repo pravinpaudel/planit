@@ -128,7 +128,11 @@ const RoadmapPage = () => {
                 onMilestoneClick={handleMilestoneClick}
                 selectedMilestone={selectedMilestone}
                 onEditMilestone={handleEditMilestone}
+                planTitle={activePlan.title}
               />
+              <div className="absolute top-2 right-2 text-xs text-gray-500 italic">
+                Tip: Use fullscreen button for better viewing experience
+              </div>
             </div>
           )}
           

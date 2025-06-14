@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppDispatch } from '../../hooks/reduxHooks';
 import { createMilestone, updateMilestone } from '../../features/plans/planSlice';
 import { Button } from '../ui/Button';
-import type { Milestone } from '../../types';
+import type { Milestone, MilestoneStatus } from '../../types';
 
 interface MilestoneFormProps {
   onClose: () => void;
@@ -28,7 +28,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
       : ''
   );
   const [parentId, setParentId] = useState<string | null>(existingMilestone?.parentId || null);
-  const [isComplete, setIsComplete] = useState(existingMilestone?.isComplete || false);
+  const [status, setStatus] = useState<MilestoneStatus>(existingMilestone?.status || 'NOT_STARTED');
   const [errors, setErrors] = useState({ title: '', description: '', deadline: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -71,7 +71,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
             title, 
             description, 
             deadline, 
-            isComplete,
+            status,
             parentId
           }
         })).unwrap();
@@ -82,6 +82,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
           description, 
           deadline, 
           taskId,
+          status,
           parentId: parentId || undefined
         })).unwrap();
       }
@@ -175,20 +176,23 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
         {errors.deadline && <p className="mt-1 text-sm text-red-500">{errors.deadline}</p>}
       </div>
 
-      {existingMilestone && (
-        <div className="flex items-center">
-          <input
-            id="isComplete"
-            type="checkbox"
-            checked={isComplete}
-            onChange={(e) => setIsComplete(e.target.checked)}
-            className="h-4 w-4 text-blue-600 border-gray-300 rounded"
-          />
-          <label htmlFor="isComplete" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-            Mark as complete
-          </label>
-        </div>
-      )}
+      <div>
+        <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Status
+        </label>
+        <select
+          id="status"
+          value={status}
+          onChange={(e) => setStatus(e.target.value as MilestoneStatus)}
+          className="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+        >
+          <option value="NOT_STARTED">Not Started</option>
+          <option value="IN_PROGRESS">In Progress</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="AT_RISK">At Risk</option>
+          <option value="DELAYED">Delayed</option>
+        </select>
+      </div>
 
       <div className="flex justify-end space-x-3 pt-4">
         <Button 

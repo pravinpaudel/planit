@@ -53,22 +53,31 @@ model Task {
   @@map("tasks")
 }
 
+// Define status enum for milestones
+enum MilestoneStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  AT_RISK
+  DELAYED
+}
+
 model Milestone {
-  id         String      @id @default(uuid())
+  id          String          @id @default(uuid())
   title       String
   description String
-  task       Task        @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  taskId     String      @map("task_id")
-  isComplete Boolean     @default(false)
-  deadline   DateTime   
+  task        Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId      String          @map("task_id")
+  status      MilestoneStatus @default(NOT_STARTED) @map("status")
+  deadline    DateTime   
   
   // Self-relation for parent-child hierarchy
-  parentId   String?     @map("parent_id")
-  parent     Milestone?  @relation("MilestoneHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
-  children   Milestone[] @relation("MilestoneHierarchy")
+  parentId    String?         @map("parent_id")
+  parent      Milestone?      @relation("MilestoneHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Milestone[]     @relation("MilestoneHierarchy")
 
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   @@map("milestones")
 }
