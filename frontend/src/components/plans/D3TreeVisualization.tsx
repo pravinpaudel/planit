@@ -7,6 +7,7 @@ interface D3TreeVisualizationProps {
   milestones: Record<string, Milestone>;
   onMilestoneClick: (id: string) => void;
   selectedMilestone: string | null;
+  onEditMilestone?: (id: string) => void;
 }
 
 // Interface that combines Milestone properties with hierarchy structure for D3
@@ -24,7 +25,12 @@ interface HierarchyData {
   children?: HierarchyData[];
 }
 
-const D3TreeVisualization = ({ milestones, onMilestoneClick, selectedMilestone }: D3TreeVisualizationProps) => {
+const D3TreeVisualization = ({ 
+  milestones, 
+  onMilestoneClick, 
+  selectedMilestone,
+  onEditMilestone 
+}: D3TreeVisualizationProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const gRef = useRef<SVGGElement>(null);
   const [zoomTransform, setZoomTransform] = useState<d3.ZoomTransform>(d3.zoomIdentity);
@@ -295,6 +301,43 @@ const D3TreeVisualization = ({ milestones, onMilestoneClick, selectedMilestone }
           default: return '#94a3b8';
         }
       });
+    
+    // Add edit icons for selected milestone
+    if (onEditMilestone) {
+      nodeGroups
+        .filter(d => d.data.id === selectedId)
+        .append('g')
+        .attr('class', 'edit-icon')
+        .attr('transform', 'translate(65, -25)')
+        .style('cursor', 'pointer')
+        .on('click', (event, d) => {
+          event.stopPropagation(); // Prevent triggering the node click event
+          if (onEditMilestone) {
+            onEditMilestone(d.data.id);
+          }
+        })
+        .each(function() {
+          // Create edit icon (pencil) background
+          d3.select(this)
+            .append('circle')
+            .attr('r', 12)
+            .attr('fill', 'white')
+            .attr('stroke', '#3b82f6')
+            .attr('stroke-width', 1.5);
+          
+          // Create edit icon (pencil icon)
+          d3.select(this)
+            .append('path')
+            .attr('d', 'M12,2C6.47,2,2,6.47,2,12s4.47,10,10,10s10-4.47,10-10S17.53,2,12,2z M9,17v-2.5l5.5-5.5l2.5,2.5L11.5,17H9z M16.5,10.5l-2.5-2.5l1.5-1.5l2.5,2.5L16.5,10.5z')
+            .attr('transform', 'scale(0.7) translate(-12, -12)')
+            .attr('fill', '#3b82f6');
+
+          // Add tooltip
+          d3.select(this)
+            .append('title')
+            .text('Edit milestone');
+        });
+    }
   };
 
   // D3 rendering logic
@@ -396,6 +439,7 @@ const D3TreeVisualization = ({ milestones, onMilestoneClick, selectedMilestone }
     <div className="absolute bottom-4 left-4 bg-white p-2 rounded-md shadow-sm text-xs text-gray-600">
       <p>⚙️ Pan: Click and drag</p>
       <p>🔍 Zoom: Mouse wheel or use controls</p>
+      <p>✏️ Edit: Click a milestone, then the edit icon</p>
     </div>
   );
 
