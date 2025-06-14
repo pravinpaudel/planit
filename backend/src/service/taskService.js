@@ -47,7 +47,11 @@ class TaskService {
                 where: { userId },
                 orderBy: { createdAt: 'desc' },
                 include: {
-                    milestones: true
+                    milestones: {
+                        include: {
+                            children: true
+                        }
+                    }
                 }
             });
         } catch (error) {
@@ -130,7 +134,11 @@ class TaskService {
             const task = await prismaClient.task.findUnique({
                 where: { id: taskId },
                 include: {
-                    milestones: true
+                    milestones: {
+                        include: {
+                            children: true
+                        }
+                    }
                 }
             });
             if (!task) {
