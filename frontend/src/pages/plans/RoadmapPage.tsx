@@ -146,7 +146,7 @@ const RoadmapPage = () => {
                 onEditMilestone={handleEditMilestone}
                 planTitle={activePlan.title}
               />
-              <div className="absolute top-4 right-32 text-xs text-gray-500 bg-white/90 backdrop-blur-sm py-1.5 px-3.5 rounded-full shadow-sm">
+              <div className="absolute top-4 right-20 text-xs text-gray-500 bg-white/90 backdrop-blur-sm py-1.5 px-3.5 rounded-full shadow-sm">
                 Tip: Use fullscreen button for better viewing experience
               </div>
             </div>
@@ -165,7 +165,7 @@ const RoadmapPage = () => {
                 onSuccess={handleMilestoneSuccess}
                 parentOptions={getAllMilestones(activePlan.milestones).map(milestone => ({
                   id: milestone.id,
-                  title: milestone.parentId ? `↳ ${milestone.title}` : milestone.title
+                  title: milestone.parentId ? `${milestone.title}` : milestone.title
                 }))}
               />
             )}
