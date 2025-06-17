@@ -70,7 +70,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
           milestoneData: { 
             title, 
             description, 
-            deadline, 
+            deadline: new Date(deadline).toISOString(), 
             status,
             parentId
           }
@@ -80,7 +80,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
         await dispatch(createMilestone({ 
           title, 
           description, 
-          deadline, 
+          deadline: new Date(deadline).toISOString(), 
           taskId,
           status,
           parentId: parentId || undefined

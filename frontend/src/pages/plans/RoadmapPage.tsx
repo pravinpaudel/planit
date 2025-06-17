@@ -14,13 +14,13 @@ import { Modal } from '../../components/ui/Modal';
 import MilestoneForm from '../../components/forms/MilestoneForm';
 
 const RoadmapPage = () => {
-  const navigate = useNavigate();
   const { planId } = useParams<{ planId: string }>();
   const dispatch = useAppDispatch();
   const { activePlan, isLoading, error } = useAppSelector(state => state.plan);
   const [milestones, setMilestones] = useState<Record<string, Milestone>>({});
   const [selectedMilestone, setSelectedMilestone] = useState<string | null>(null);
   const [showMilestoneModal, setShowMilestoneModal] = useState<boolean>(false);
+  const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
   
   // Fetch plan data when component mounts
   useEffect(() => {
@@ -51,26 +51,30 @@ const RoadmapPage = () => {
   const handleEditMilestone = (id: string) => {
     console.log('Edit milestone:', id);
     
-    // For now, we'll navigate to the plan detail page with the milestone to edit
-    // In a more advanced implementation, you could show a modal dialog here
-    if (planId) {
-      navigate(`/plans/${planId}?edit=${id}`);
+    // Find the milestone to edit
+    const milestoneToEdit = milestones[id];
+    if (milestoneToEdit) {
+      setSelectedMilestone(id);
+      setEditingMilestone(milestoneToEdit);
+      setShowMilestoneModal(true);
     }
   };
   
-  // Handle opening the milestone modal
+  // Handle opening the milestone modal for creating a new milestone
   const handleOpenMilestoneModal = () => {
+    setEditingMilestone(null);
     setShowMilestoneModal(true);
   };
   
   // Handle closing the milestone modal
   const handleCloseMilestoneModal = () => {
     setShowMilestoneModal(false);
+    setEditingMilestone(null);
   };
   
-  // Handle successful milestone creation
+  // Handle successful milestone creation or update
   const handleMilestoneSuccess = () => {
-    // Refresh the plan data to include the new milestone
+    // Refresh the plan data to include the new/updated milestone
     if (planId) {
       dispatch(fetchPlanById(planId));
     }
@@ -156,17 +160,20 @@ const RoadmapPage = () => {
           <Modal 
             isOpen={showMilestoneModal} 
             onClose={handleCloseMilestoneModal}
-            title="Add New Milestone"
+            title={editingMilestone ? "Edit Milestone" : "Add New Milestone"}
           >
             {planId && activePlan && (
               <MilestoneForm 
                 taskId={planId}
                 onClose={handleCloseMilestoneModal}
                 onSuccess={handleMilestoneSuccess}
-                parentOptions={getAllMilestones(activePlan.milestones).map(milestone => ({
-                  id: milestone.id,
-                  title: milestone.parentId ? `${milestone.title}` : milestone.title
-                }))}
+                existingMilestone={editingMilestone || undefined}
+                parentOptions={getAllMilestones(activePlan.milestones)
+                  .filter(milestone => !editingMilestone || milestone.id !== editingMilestone.id)
+                  .map(milestone => ({
+                    id: milestone.id,
+                    title: milestone.parentId ? `${milestone.title}` : milestone.title
+                  }))}
               />
             )}
           </Modal>
