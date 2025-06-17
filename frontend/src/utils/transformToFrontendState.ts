@@ -16,12 +16,25 @@ const transformToFrontendState = (milestones: Milestone[]): Record<string, Miles
         };
     });
 
-    // Second pass: Build the hierarchy (parent-child relationships)
+    // Create a temporary map to preserve child order
+    const childOrderMap: Record<string, string[]> = {};
+    
+    // Collect child IDs in order for each parent
     milestones.forEach(milestone => {
         if (milestone.parentId && milestoneMap[milestone.parentId]) {
-            // Store the whole milestone object in the children array
-            // This matches the Milestone interface where children is Milestone[]
-            milestoneMap[milestone.parentId].children?.push(milestoneMap[milestone.id]);
+            if (!childOrderMap[milestone.parentId]) {
+                childOrderMap[milestone.parentId] = [];
+            }
+            childOrderMap[milestone.parentId].push(milestone.id);
+        }
+    });
+    
+    // Second pass: Build the hierarchy (parent-child relationships)
+    // Use the preserved order from childOrderMap
+    Object.entries(childOrderMap).forEach(([parentId, childIds]) => {
+        if (milestoneMap[parentId]) {
+            // Add children in the same order they were provided in the original array
+            milestoneMap[parentId].children = childIds.map(id => milestoneMap[id]);
         }
     });
 

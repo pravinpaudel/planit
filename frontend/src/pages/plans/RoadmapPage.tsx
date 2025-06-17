@@ -13,6 +13,15 @@ import { Plus } from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
 import MilestoneForm from '../../components/forms/MilestoneForm';
 
+// Helper function to preserve milestone order by creation date
+const sortMilestonesByCreationDate = (milestones: Milestone[]): Milestone[] => {
+  return [...milestones].sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+    return dateA - dateB;
+  });
+};
+
 const RoadmapPage = () => {
   const { planId } = useParams<{ planId: string }>();
   const dispatch = useAppDispatch();
@@ -35,8 +44,13 @@ const RoadmapPage = () => {
     if (activePlan && activePlan.milestones) {
       // Get all milestones including nested ones
       const flattenMilestones = getAllMilestones(activePlan.milestones);
+      
+      // Sort milestones by creation date before transforming to preserve order
+      const sortedMilestones = sortMilestonesByCreationDate(flattenMilestones);
+      
       // Transform data to the format expected by the D3 visualization
-      const transformedData = transformToFrontendState(flattenMilestones);
+      // Our enhanced transformToFrontendState will preserve the order
+      const transformedData = transformToFrontendState(sortedMilestones);
       setMilestones(transformedData);
     }
   }, [activePlan]);
