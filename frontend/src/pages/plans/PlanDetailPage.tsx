@@ -14,7 +14,6 @@ import MilestoneForm from '../../components/forms/MilestoneForm';
 import MilestoneDetailCard from '../../components/plans/MilestoneDetailCard';
 import { Milestone } from '../../types';
 import { formatDate } from '../../utils/dateUtils';
-import { set } from 'react-hook-form';
 
 // Helper function to flatten milestone hierarchy
 export const getAllMilestones = (milestones: Milestone[] = []): Milestone[] => {
