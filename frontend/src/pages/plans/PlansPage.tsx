@@ -8,6 +8,7 @@ import { Button } from '../../components/ui/Button';
 import { Calendar, Clock, Plus, Trash, Edit } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { fetchPlans, deletePlan } from '../../features/plans/planSlice';
+import { formatDate } from '../../utils/dateUtils';
 
 const PlansPage = () => {
   const dispatch = useAppDispatch();
@@ -40,15 +41,7 @@ const PlansPage = () => {
     navigate(`/plans/${planId}`);
   };
 
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
+  
 
   return (
     <>
