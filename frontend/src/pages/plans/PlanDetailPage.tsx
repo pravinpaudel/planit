@@ -19,14 +19,14 @@ import { formatDate } from '../../utils/dateUtils';
 
 // Helper function to flatten milestone hierarchy
 export const getAllMilestones = (milestones: Milestone[] = []): Milestone[] => {
-    // Initialize an empty array to hold all milestones
-    let allMilestones: Milestone[] = [];
+    // Initialize a Map to hold milestones by ID to prevent duplicates
+    const milestoneMap = new Map<string, Milestone>();
     
     // Function to recursively gather milestones and their children
     const gatherMilestones = (items: Milestone[]) => {
         items.forEach(milestone => {
-            // Add the current milestone
-            allMilestones.push(milestone);
+            // Add the current milestone to the map, using ID as key to prevent duplicates
+            milestoneMap.set(milestone.id, milestone);
             
             // If this milestone has children, recursively gather them
             if (milestone.children && milestone.children.length > 0) {
@@ -38,8 +38,8 @@ export const getAllMilestones = (milestones: Milestone[] = []): Milestone[] => {
     // Start the recursion with the top-level milestones
     gatherMilestones(milestones);
     
-    // Return the flattened array of all milestones
-    return allMilestones;
+    // Return the values from the map as an array (no duplicates)
+    return Array.from(milestoneMap.values());
 };
 
 // Function to get upcoming milestones along with the not completed ones
@@ -402,8 +402,8 @@ const PlanDetailPage = () => {
                         ) : (
                             <div className="space-y-4">
                                 {/* Flatten the milestone structure to include both top-level and children */}
-                                {getUpcomingMilestones(getAllMilestones(activePlan.milestones)).slice(0, 5).map((milestone) => (
-                                    <div key={milestone.id}>
+                                {getUpcomingMilestones(getAllMilestones(activePlan.milestones)).slice(0, 5).map((milestone, index) => (
+                                    <div key={`${milestone.id}`}>
                                         <Card 
                                             className={`transition-all ${milestone.isComplete ? 'bg-green-50 dark:bg-green-900/20' : ''} hover:shadow-md hover:border-roadmap-primary/50`}
                                             hover={true}
