@@ -266,6 +266,7 @@ const PlanDetailPage = () => {
                         </div>
                     </div>
 
+                    {/* Quick Stats Section */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -347,6 +348,7 @@ const PlanDetailPage = () => {
                         </Card>
                     </motion.div>
 
+                    {/* Upcoming Milestones Section */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -354,7 +356,8 @@ const PlanDetailPage = () => {
                     >
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                                Milestones
+                                <Calendar className="inline-block mr-2" />
+                                Upcoming Milestones
                             </h2>
                             <Button
                                 variant="default"

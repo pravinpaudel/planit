@@ -59,3 +59,11 @@ export interface UpdateMilestoneData {
   isComplete?: boolean; // Legacy field for backward compatibility
   parentId?: string | null;
 }
+
+// Component props types
+export interface MilestoneDetailCardProps {
+  milestone: Milestone;
+  onClose: () => void;
+  onEdit?: (milestoneId: string) => void;
+  onToggleComplete?: (milestoneId: string, isComplete: boolean) => void;
+}
