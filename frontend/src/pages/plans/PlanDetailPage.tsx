@@ -9,6 +9,7 @@ import { Clock, ArrowLeft, CheckCircle, Edit, Trash, Plus, Target, Calendar } fr
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { fetchPlanById, deletePlan, updateMilestone } from '../../features/plans/planThunks';
 import { selectActivePlan, selectPlanLoading, selectPlanError } from '../../features/plans/planSelectors';
+import { addNotification } from '../../features/ui/uiSlice';
 import { Badge } from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import MilestoneForm from '../../components/forms/MilestoneForm';
@@ -131,10 +132,19 @@ const PlanDetailPage = () => {
                     isComplete
                 }
             })).then(() => {
-                // Refresh plan data
-                if (planId) {
-                    dispatch(fetchPlanById(planId));
-                }
+                // Show success notification
+                console.log(`Milestone ${milestoneId} marked as ${isComplete ? 'complete' : 'incomplete'}`);
+                dispatch(addNotification({
+                    type: 'success',
+                    title: 'Milestone Updated',
+                    message: `The milestone status has been updated to ${isComplete ? 'complete' : 'incomplete'}.`
+                }));
+                // Optionally, you can close the modal or update the UI
+                setShowMilestoneDetailsModal(false);
+                setViewingMilestone(null);
+                setSelectedMilestone(null);
+                setIsEditing(false);
+                // No need to fetch plan again as Redux store is already updated
             });
         }
     };
@@ -408,7 +418,7 @@ const PlanDetailPage = () => {
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <h3 className={`font-medium flex items-center gap-1 ${milestone.isComplete ? 'text-green-700 dark:text-green-400' : ''}`}>
-                                                            {milestone.parentId && <span className="mr-1 text-xs text-gray-500">↳</span>}
+                                                            {/* {milestone.parentId && <span className="mr-1 text-xs text-gray-500"></span>} */}
                                                             {milestone.title}
                                                             <span className="ml-1 text-xs text-blue-500 font-normal">(View details)</span>
                                                         </h3>
