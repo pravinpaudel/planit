@@ -7,7 +7,8 @@ import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Clock, ArrowLeft, CheckCircle, Edit, Trash, Plus, Target, Calendar } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
-import { fetchPlanById, deletePlan, updateMilestone } from '../../features/plans/planSlice';
+import { fetchPlanById, deletePlan, updateMilestone } from '../../features/plans/planThunks';
+import { selectActivePlan, selectPlanLoading, selectPlanError } from '../../features/plans/planSelectors';
 import { Badge } from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import MilestoneForm from '../../components/forms/MilestoneForm';
@@ -49,7 +50,9 @@ const getUpcomingMilestones = (milestones: Milestone[]): Milestone[] => {
 const PlanDetailPage = () => {
     const { planId } = useParams<{ planId: string }>();
     const dispatch = useAppDispatch();
-    const { activePlan, isLoading, error } = useAppSelector(state => state.plan);
+    const activePlan = useAppSelector(selectActivePlan);
+    const isLoading = useAppSelector(selectPlanLoading);
+    const error = useAppSelector(selectPlanError);
     const navigate = useNavigate();
     const [showMilestoneModal, setShowMilestoneModal] = useState(false);
     const [showMilestoneDetailsModal, setShowMilestoneDetailsModal] = useState(false);

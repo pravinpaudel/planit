@@ -7,7 +7,8 @@ import D3TreeVisualization from '../../components/plans/D3TreeVisualization';
 import transformToFrontendState from '../../utils/transformToFrontendState';
 import { getAllMilestones } from './PlanDetailPage';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
-import { fetchPlanById } from '../../features/plans/planSlice';
+import { fetchPlanById } from '../../features/plans/planThunks';
+import { selectActivePlan, selectPlanLoading, selectPlanError } from '../../features/plans/planSelectors';
 import { Button } from '../../components/ui/Button';
 import { Plus } from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
@@ -25,7 +26,9 @@ const sortMilestonesByCreationDate = (milestones: Milestone[]): Milestone[] => {
 const RoadmapPage = () => {
   const { planId } = useParams<{ planId: string }>();
   const dispatch = useAppDispatch();
-  const { activePlan, isLoading, error } = useAppSelector(state => state.plan);
+  const activePlan = useAppSelector(selectActivePlan);
+  const isLoading = useAppSelector(selectPlanLoading);
+  const error = useAppSelector(selectPlanError);
   const [milestones, setMilestones] = useState<Record<string, Milestone>>({});
   const [selectedMilestone, setSelectedMilestone] = useState<string | null>(null);
   const [showMilestoneModal, setShowMilestoneModal] = useState<boolean>(false);

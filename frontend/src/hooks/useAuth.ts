@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from './reduxHooks';
 import { logout } from '../features/auth/authSlice';
-import { addNotification } from '../store/uiSlice';
+import { addNotification } from '../features/ui/uiSlice';
 
 /**
  * A custom hook to handle authentication in the app
