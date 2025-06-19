@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAppDispatch } from '../../hooks/reduxHooks';
-import { createMilestone, updateMilestone } from '../../features/plans/planSlice';
+import { createMilestone, updateMilestone } from '../../features/plans/planThunks';
 import { Button } from '../ui/Button';
 import type { Milestone, MilestoneStatus } from '../../types';
 

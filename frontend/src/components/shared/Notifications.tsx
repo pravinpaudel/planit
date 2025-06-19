@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
-import { removeNotification } from '../../store/uiSlice';
+import { removeNotification } from '../../features/ui/uiSlice';
+import { selectNotifications } from '../../features/ui/uiSelectors';
 import { Toast, ToastContainer } from '../ui/Toast';
 
 export const Notifications = () => {
   const dispatch = useAppDispatch();
-  const notifications = useAppSelector((state) => state.ui.notifications);
+  const notifications = useAppSelector(selectNotifications);
 
   // Auto-dismiss notifications after their duration
   useEffect(() => {

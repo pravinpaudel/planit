@@ -7,12 +7,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Ca
 import { Button } from '../../components/ui/Button';
 import { Calendar, Clock, Plus, Trash, Edit } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
-import { fetchPlans, deletePlan } from '../../features/plans/planSlice';
+import { fetchPlans, deletePlan } from '../../features/plans/planThunks';
+import { selectAllPlans, selectPlanLoading, selectPlanError } from '../../features/plans/planSelectors';
 import { formatDate } from '../../utils/dateUtils';
 
 const PlansPage = () => {
   const dispatch = useAppDispatch();
-  const { plans, isLoading, error } = useAppSelector((state) => state.plan);
+  const plans = useAppSelector(selectAllPlans);
+  const isLoading = useAppSelector(selectPlanLoading);
+  const error = useAppSelector(selectPlanError);
   const navigate = useNavigate();
 
   // Animation variants

@@ -6,13 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Ca
 import { Button } from '../../components/ui/Button';
 import { motion } from 'framer-motion';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
-import { createPlan } from '../../features/plans/planSlice';
+import { createPlan } from '../../features/plans/planThunks';
+import { selectPlanLoading } from '../../features/plans/planSelectors';
 import type { CreatePlanData } from '../../types';
 
 const CreatePlanPage = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const { isLoading } = useAppSelector(state => state.plan);
+  const isLoading = useAppSelector(selectPlanLoading);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 

@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { Button } from '../../components/ui/Button';
 import { CheckCircle } from 'lucide-react';
 import { useAppDispatch } from '../../hooks/reduxHooks';
-import { addNotification } from '../../store/uiSlice';
+import { addNotification } from '../../features/ui/uiSlice';
+
 
 interface WelcomeProps {
   userName: string;

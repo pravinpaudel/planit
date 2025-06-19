@@ -1,7 +1,7 @@
 import type { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 import { store } from '../store';
 import { logout, refreshToken } from '../features/auth/authSlice';
-import { addNotification } from '../store/uiSlice';
+import { addNotification } from '../features/ui/uiSlice';
 
 export const setupInterceptors = (axiosInstance: AxiosInstance) => {
   // Request interceptor

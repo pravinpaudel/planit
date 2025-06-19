@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAppDispatch } from '../../hooks/reduxHooks';
-import { createPlan, updatePlan } from '../../features/plans/planSlice';
+import { createPlan, updatePlan } from '../../features/plans/planThunks';
 import { Button } from '../ui/Button';
 import type { Plan } from '../../types';
 
