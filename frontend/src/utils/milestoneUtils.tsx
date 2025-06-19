@@ -1,6 +1,7 @@
 import React from 'react';
 import { Clock, Calendar, CheckCircle, X, Target, Edit } from 'lucide-react';
 import { MilestoneStatus } from '../types';
+import { ShieldAlert } from 'lucide-react';
 
 /**
  * Configuration for milestone status styling and display
@@ -27,12 +28,12 @@ export const statusConfig: Record<MilestoneStatus, {
     label: 'Completed' 
   },
   AT_RISK: { 
-    icon: <Clock className="h-5 w-5" />, 
+    icon: <ShieldAlert className="h-5 w-5" />, 
     color: 'bg-amber-50 text-amber-600 border-amber-500 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800', 
     label: 'At Risk' 
   },
   DELAYED: { 
-    icon: <X className="h-5 w-5" />, 
+    icon: <Clock className="h-5 w-5" />, 
     color: 'bg-red-50 text-red-600 border-red-500 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800', 
     label: 'Delayed' 
   }
