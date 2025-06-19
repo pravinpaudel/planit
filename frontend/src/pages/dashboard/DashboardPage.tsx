@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, GlassCard } from '../../compo
 import { MainLayout } from '../../components/layout/MainLayout';
 import { Navigation } from '../../components/layout/Navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, CheckCircle, Clock, Target, Plus } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, Target, Plus, Folders } from 'lucide-react';
 import WelcomeOverlay from '../../components/shared/WelcomeOverlay';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -111,7 +111,8 @@ const DashboardPage = () => {
               Here's an overview of your productivity planning.
             </motion.p>
           </div>
-
+          
+          {/* Stats Section */} 
           <motion.div 
             className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
             variants={containerVariants}
@@ -152,12 +153,13 @@ const DashboardPage = () => {
                 <CardTitle>Upcoming Goals & Milestones</CardTitle>
                 <Link to="/plans">
                   <Button variant="outline" size="sm" className="h-8 gap-1">
-                    <Plus className="h-4 w-4" />
+                    <Folders className="h-4 w-4" />
                     Manage Plans
                   </Button>
                 </Link>
               </CardHeader>
               <CardContent>
+                
                 {/* Example milestone card - would be replaced with real data */}
                 <div className="mb-4">
                   <AnimatedMilestoneCard priority={2} className="p-4">

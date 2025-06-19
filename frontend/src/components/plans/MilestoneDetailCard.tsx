@@ -29,8 +29,10 @@ const MilestoneDetailCard: React.FC<MilestoneDetailCardProps> = ({
       className="milestone-detail-card"
     >
       {/* Top ribbon based on status */}
-      <div className={`h-2 w-full ${status.color.split(' ')[0]} rounded-t-lg`}></div>
-      
+      <div className={`h-2 w-full ${status.ribbonColor} rounded-t-lg`}
+        style={{ backgroundColor: status.ribbonColor }}>
+      </div>
+
       <CardHeader>
         <div className="flex justify-between items-center">
           <Badge variant="outline" className={`${status.color} status-badge`}>

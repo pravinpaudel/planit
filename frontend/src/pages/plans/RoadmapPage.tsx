@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { Milestone } from '../../types/plan';
 import D3TreeVisualization from '../../components/plans/D3TreeVisualization';
 import transformToFrontendState from '../../utils/transformToFrontendState';
-import { getAllMilestones } from './PlanDetailPage';
+import { getAllMilestones } from '../../utils/milestoneUtils';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { fetchPlanById } from '../../features/plans/planThunks';
 import { selectActivePlan, selectPlanLoading, selectPlanError } from '../../features/plans/planSelectors';
