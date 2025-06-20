@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '../../components/layout/MainLayout';
 import { Navigation } from '../../components/layout/Navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Milestone } from '../../types/plan';
 import D3TreeVisualization from '../../components/plans/D3TreeVisualization';
 import transformToFrontendState from '../../utils/transformToFrontendState';
@@ -42,21 +42,25 @@ const RoadmapPage = () => {
     dispatch(fetchPlanById(planId));
   }, [dispatch, planId]);
 
-  // Process milestone data when activePlan changes
+  // Process milestone data when activePlan changes - using useMemo for caching
+  const processedMilestones = useMemo(() => {
+    if (!activePlan?.milestones) return {};
+    
+    // Get all milestones including nested ones
+    const flattenMilestones = getAllMilestones(activePlan.milestones);
+    
+    // Sort milestones by creation date before transforming to preserve order
+    const sortedMilestones = sortMilestonesByCreationDate(flattenMilestones);
+    
+    // Transform data to the format expected by the D3 visualization
+    // Our enhanced transformToFrontendState will preserve the order
+    return transformToFrontendState(sortedMilestones);
+  }, [activePlan?.milestones]);
+  
+  // Update state whenever processed milestones change
   useEffect(() => {
-    if (activePlan && activePlan.milestones) {
-      // Get all milestones including nested ones
-      const flattenMilestones = getAllMilestones(activePlan.milestones);
-      
-      // Sort milestones by creation date before transforming to preserve order
-      const sortedMilestones = sortMilestonesByCreationDate(flattenMilestones);
-      
-      // Transform data to the format expected by the D3 visualization
-      // Our enhanced transformToFrontendState will preserve the order
-      const transformedData = transformToFrontendState(sortedMilestones);
-      setMilestones(transformedData);
-    }
-  }, [activePlan]);
+    setMilestones(processedMilestones);
+  }, [processedMilestones]);
 
   // Handle milestone click
   const handleMilestoneClick = (id: string) => {

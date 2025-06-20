@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MainLayout } from '../../components/layout/MainLayout';
@@ -32,6 +32,26 @@ const PlanDetailPage = () => {
     const [isEditing, setIsEditing] = useState(false);
 
     const MILESTONES_TO_DISPLAY = 5; // Number of milestones to display in the upcoming section
+    
+    // Memoize calculated values to avoid redundant calculations
+    const allMilestones = useMemo(() => {
+        if (!activePlan) return [];
+        return getAllMilestones(activePlan.milestones);
+    }, [activePlan?.milestones]);
+    
+    const milestoneStats = useMemo(() => {
+        const totalMilestones = allMilestones.length;
+        const completedMilestones = allMilestones.filter(m => m.isComplete).length;
+        return {
+            total: totalMilestones,
+            completed: completedMilestones,
+            percentage: totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0
+        };
+    }, [allMilestones]);
+    
+    const upcomingMilestones = useMemo(() => {
+        return getUpcomingMilestones(allMilestones).slice(0, MILESTONES_TO_DISPLAY);
+    }, [allMilestones, MILESTONES_TO_DISPLAY]);
     
     // Handle creating a new milestone
     const handleOpenMilestoneModal = () => {
@@ -68,8 +88,7 @@ const PlanDetailPage = () => {
     const handleMilestoneClick = (milestoneId: string) => {
         setSelectedMilestone(milestoneId);
         
-        // Find the milestone details from the active plan - use getAllMilestones to find in hierarchy
-        const allMilestones = getAllMilestones(activePlan?.milestones);
+        // Find the milestone details using our memoized allMilestones
         const milestoneDetails = allMilestones.find(m => m.id === milestoneId);
         
         if (milestoneDetails) {
@@ -90,8 +109,7 @@ const PlanDetailPage = () => {
     const handleToggleComplete = (milestoneId: string, isComplete: boolean) => {
         if (!activePlan) return;
         
-        // Find the milestone in the hierarchy
-        const allMilestones = getAllMilestones(activePlan.milestones);
+        // Find the milestone using our memoized allMilestones
         const milestone = allMilestones.find(m => m.id === milestoneId);
         
         if (milestone) {
@@ -307,7 +325,7 @@ const PlanDetailPage = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <p className="text-xl font-bold mb-0.5">{getAllMilestones(activePlan.milestones).length}</p>
+                                    <p className="text-xl font-bold mb-0.5">{milestoneStats.total}</p>
                                     <p className="text-xs text-gray-600 dark:text-gray-400">Milestones</p>
                                 </div>
                             </CardContent>
@@ -325,7 +343,7 @@ const PlanDetailPage = () => {
                                 </div>
                                 <div>
                                     <p className="text-xl font-bold mb-0.5">
-                                        {getAllMilestones(activePlan.milestones).filter(m => m.isComplete).length} / {getAllMilestones(activePlan.milestones).length}
+                                        {milestoneStats.completed} / {milestoneStats.total}
                                     </p>
                                     <p className="text-xs text-gray-600 dark:text-gray-400">Progress</p>
                                 </div>
@@ -373,8 +391,8 @@ const PlanDetailPage = () => {
                             </Card>
                         ) : (
                             <div className="space-y-4">
-                                {/* Flatten the milestone structure to include both top-level and children */}
-                                {getUpcomingMilestones(getAllMilestones(activePlan.milestones)).slice(0, MILESTONES_TO_DISPLAY).map((milestone, index) => (
+                                {/* Using memoized upcomingMilestones to avoid redundant calculations */}
+                                {upcomingMilestones.map((milestone, index) => (
                                     <div key={`${milestone.id}`}>
                                         <Card 
                                             className={`transition-all hover:shadow-md hover:border-roadmap-primary/50 relative overflow-hidden`}
@@ -472,10 +490,10 @@ const PlanDetailPage = () => {
                             onClose={handleCloseMilestoneModal}
                             onSuccess={handleMilestoneSuccess}
                             existingMilestone={isEditing && selectedMilestone ? 
-                                getAllMilestones(activePlan.milestones).find(m => m.id === selectedMilestone) : 
+                                allMilestones.find(m => m.id === selectedMilestone) : 
                                 undefined
                             }
-                            parentOptions={getAllMilestones(activePlan.milestones)
+                            parentOptions={allMilestones
                                 .filter(milestone => {
                                     // Don't include self as parent option when editing
                                     if (isEditing && selectedMilestone && milestone.id === selectedMilestone) {

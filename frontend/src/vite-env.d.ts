@@ -36,6 +36,8 @@ declare module 'lucide-react' {
   export const Edit: any;
   export const MoreVertical: any;
   export const Loader2: any;
+  export const ShieldAlert: any;
+  export const Fullscreen: any;
   // Add other icon exports as needed
 }
 

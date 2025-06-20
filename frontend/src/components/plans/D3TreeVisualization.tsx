@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { Fullscreen } from "lucide-react";
 import * as d3 from "d3";
 import { Milestone } from "../../types/plan";
@@ -92,6 +92,11 @@ const D3TreeVisualization: React.FC<D3TreeVisualizationProps> = ({
     }
   }, []);
 
+  // Memoize the hierarchy data creation which is an expensive computation
+  const hierarchy = useMemo(() => {
+    return createHierarchy(milestones, planTitle);
+  }, [milestones, planTitle]);
+  
   // The main render function for the tree visualization
   const renderTree = useCallback(() => {
     if (!svgRef.current || !gRef.current) return;
@@ -100,11 +105,11 @@ const D3TreeVisualization: React.FC<D3TreeVisualizationProps> = ({
     const width = containerRef.current?.clientWidth || 1000;
     const height = containerRef.current?.clientHeight || 600;
 
-    g.selectAll("*").remove();
-
     // Create hierarchy data
-    const hierarchy = createHierarchy(milestones, planTitle);
-    if (!hierarchy) return;
+    const hierarchyData = createHierarchy(milestones, planTitle);
+    if (!hierarchyData) return;
+    
+    g.selectAll("*").remove();
 
     // Apply tree layout
     const treeLayout = d3.tree<Milestone>()

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/Card';
 import { Clock, Calendar, CheckCircle, X, Target, Edit } from 'lucide-react';
@@ -14,11 +14,28 @@ const MilestoneDetailCard: React.FC<MilestoneDetailCardProps> = ({
   onEdit,
   onToggleComplete
 }) => {
-  const status = statusConfig[milestone.status];
-  const isCompleted = milestone.status === 'COMPLETED' || milestone.isComplete;
-  const daysUntilDeadline = Math.ceil((new Date(milestone.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-  const isOverdue = daysUntilDeadline < 0 && !isCompleted;
-  const creationDate = formatDate(milestone.createdAt);
+  // Memoize calculated values to avoid redundant calculations on re-renders
+  const { 
+    status, 
+    isCompleted,
+    daysUntilDeadline, 
+    isOverdue, 
+    creationDate 
+  } = useMemo(() => {
+    const status = statusConfig[milestone.status];
+    const isCompleted = milestone.status === 'COMPLETED' || milestone.isComplete;
+    const daysUntilDeadline = Math.ceil((new Date(milestone.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+    const isOverdue = daysUntilDeadline < 0 && !isCompleted;
+    const creationDate = formatDate(milestone.createdAt);
+    
+    return {
+      status,
+      isCompleted,
+      daysUntilDeadline,
+      isOverdue,
+      creationDate
+    };
+  }, [milestone.status, milestone.isComplete, milestone.deadline, milestone.createdAt]);
   
   return (
     <motion.div
