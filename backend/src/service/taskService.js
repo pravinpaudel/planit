@@ -150,6 +150,210 @@ class TaskService {
             throw new Error("Error retrieving task: " + error.message);
         }
     }
+
+    static async generateShareLink(taskId, payload = {}, userId) {
+        if(!taskId) {
+            throw new Error("Task ID is required");
+        }
+
+        try {
+            // Check if task exists
+            const task = await prismaClient.task.findUnique({
+                where: { id: taskId, userId: userId },
+            });
+            
+            if (!task) {
+                throw new Error("Task not found");
+            }
+            
+            const shareableLink = this.generateLink();
+            
+            // Update the task with the sharing information
+            const updatedTask = await prismaClient.task.update({
+                where: { id: taskId },
+                data: { 
+                    shareableLink,
+                    isPublic: true
+                }
+            });
+            
+            return {
+                shareableLink: updatedTask.shareableLink,
+                isPublic: updatedTask.isPublic
+            };
+        } catch (error) {
+            console.error("Error generating share link:", error);
+            throw new Error("Error generating share link: " + error.message);
+        }
+    }
+
+    /**
+     * This method updates the shareable link and other sharing settings for a task.
+     * It allows for regenerating the link, and other options.
+     * @param {*} taskId 
+     * @param {*} payload 
+     * @returns Shareable link and sharing status
+     * @throws Error if task ID is not provided or task does not exist
+     * @throws Error if task is not currently shared
+     */
+    static async updateShareLink(taskId, payload = {}) {
+        if(!taskId) {
+            throw new Error("Task ID is required");
+        }
+        
+        try {
+            // Check if task exists and is currently shared
+            const task = await prismaClient.task.findUnique({
+                where: { id: taskId }
+            });
+            
+            if (!task) {
+                throw new Error("Task not found");
+            }
+            
+            if (!task.isPublic || !task.shareableLink) {
+                throw new Error("Task is not currently shared. Use generateShareLink instead.");
+            }
+            
+            // Prepare update data based on payload
+            const updateData = {};
+            
+            // Option to regenerate the shareable link for security reasons
+            if (payload.regenerateLink === true) {
+                updateData.shareableLink = this.generateLink();
+            }
+            
+            // Update the task with new sharing settings
+            const updatedTask = await prismaClient.task.update({
+                where: { id: taskId },
+                data: updateData
+            });
+            
+            return {
+                shareableLink: updatedTask.shareableLink,
+                isPublic: updatedTask.isPublic
+            };
+        } catch (error) {
+            console.error("Error updating share link:", error);
+            throw new Error("Error updating share link: " + error.message);
+        }
+    }
+    
+    static async deleteShareLink(taskId) {
+        if(!taskId) {
+            throw new Error("Task ID is required");
+        }
+        
+        try {
+            // Check if task exists
+            const task = await prismaClient.task.findUnique({
+                where: { id: taskId }
+            });
+            
+            if (!task) {
+                throw new Error("Task not found");
+            }
+            
+            // Only attempt to update if sharing is currently enabled
+            if (!task.isPublic && !task.shareableLink) {
+                return { message: "Task was not shared" };
+            }
+            
+            // Disable sharing by updating the task
+            await prismaClient.task.update({
+                where: { id: taskId },
+                data: { 
+                    shareableLink: null, 
+                    isPublic: false 
+                }
+            });
+            
+            return { message: "Sharing disabled successfully" };
+        } catch (error) {
+            console.error("Error deleting share link:", error);
+            throw new Error("Error deleting share link: " + error.message);
+        }
+    }
+
+    static async getTaskByShareableLink(shareableLink) {
+        if(!shareableLink) {
+            throw new Error("Shareable link is required");
+        }
+        try {
+            const task = await prismaClient.task.findFirst({
+                where: { shareableLink, isPublic: true },
+                include: {
+                    milestones: {
+                        include: {
+                            children: true
+                        }
+                    }
+                }
+            })
+        } catch (error) {
+            console.error("Error retrieving task by shareable link:", error);
+            throw new Error("Error retrieving task by shareable link: " + error.message);
+        }
+    }
+
+    static async cloneTask(taskId, userId) {
+        if(!taskId || !userId) {
+            throw new Error("Task ID and user ID are required");
+        }
+        try {
+            // Check if task exists
+            const task = await prismaClient.task.findUnique({
+                where: { id: taskId },
+                include: {
+                    milestones: {
+                        include: {
+                            children: true
+                        }
+                    }
+                }
+            });
+            
+            if (!task) {
+                throw new Error("Task not found");
+            }
+
+            // Create a new task with the same details but different user ID
+            const clonedTask = await prismaClient.task.create({
+                data: {
+                    title: task.title,
+                    description: task.description,
+                    userId,
+                    milestones: {
+                        create: task.milestones.map(milestone => ({
+                            title: milestone.title,
+                            description: milestone.description,
+                            children: {
+                                create: milestone.children.map(child => ({
+                                    title: child.title,
+                                    description: child.description
+                                }))
+                            }
+                        }))
+                    }
+                }
+            });
+
+            return clonedTask;
+        } catch (error) {
+            console.error("Error cloning task:", error);
+            throw new Error("Error cloning task: " + error.message);
+        }
+    }
+
+     generateLink() {
+        // Generate a unique, URL-friendly shareable link
+        // Using a combination of base62 encoding and the current timestamp for uniqueness
+        const timestamp = Date.now().toString(36);
+        const randomStr = Math.random().toString(36).substring(2, 8);
+        const shareableLink = `${timestamp}-${randomStr}`;
+        return shareableLink;
+    }
+
 }
 
 module.exports = { TaskService };
