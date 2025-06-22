@@ -5,7 +5,7 @@ import { MainLayout } from '../../components/layout/MainLayout';
 import { Navigation } from '../../components/layout/Navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Calendar, Clock, Plus, Trash, Edit, ChevronRight, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, Plus, Trash, Edit, ChevronRight, Share } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { fetchPlans, deletePlan, updatePlan } from '../../features/plans/planThunks';
 import { selectAllPlans, selectPlanLoading, selectPlanError } from '../../features/plans/planSelectors';
@@ -15,6 +15,8 @@ import { Modal } from '../../components/ui/Modal';
 import { DropdownMenu, DropdownItem } from '../../components/ui/DropdownMenu';
 import PlanForm from '../../components/forms/PlanForm';
 import { getAllMilestones } from '../../utils/milestoneUtils';
+import { ShareStatusIcon, ShareModal } from '../../components/shared';
+import { useShareable } from '../../hooks/useShareable';
 
 const PlansPage = () => {
   const dispatch = useAppDispatch();
@@ -24,6 +26,21 @@ const PlansPage = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
+  
+  // Use the shareable hook for share functionality
+  const { 
+    isShareModalOpen,
+    sharingItem: sharingPlan,
+    sharingOption,
+    copySuccess,
+    openShareModal,
+    closeShareModal,
+    setSharingOption,
+    handleSaveSharing,
+    handleCopyLink,
+    handleSocialShare,
+    handleRegenerateLink
+  } = useShareable();
   
   // Animation variants
   const containerVariants = {
@@ -72,6 +89,15 @@ const PlansPage = () => {
     setTimeout(() => setEditingPlan(null), 300); // Reset after animation completes
   };
   
+  // Handle opening share modal
+  const handleSharePlan = (plan: Plan) => {
+    // Use the openShareModal function from the hook
+    openShareModal(plan);
+  };
+  
+  // Removed duplicate share-related functions
+  // Now using the ones from useShareable hook
+
   // Calculate plan progress
   const calculatePlanProgress = (plan: Plan): { completed: number; total: number; percentage: number } => {
     const allMilestones = getAllMilestones(plan.milestones);
@@ -158,12 +184,13 @@ const PlansPage = () => {
                 return (
                   <motion.div key={plan.id} variants={itemVariants}>
                     <Card 
-                      className="h-full cursor-pointer hover:border-roadmap-primary/50 hover:shadow-lg transition-all overflow-hidden" 
+                      className="h-full cursor-pointer hover:border-roadmap-primary/50 hover:shadow-lg transition-all overflow-hidden"
                       hover={true}
                       variant="glass"
                       onClick={() => handlePlanClick(plan.id)}
                     >
-                      <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-roadmap-primary to-roadmap-secondary opacity-70"></div>
+                      {/* Plan header decoration */}
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-roadmap-primary to-roadmap-secondary opacity-40"></div>
                       <div className="absolute top-0 right-0 mt-2 mr-2 z-10">
                         <DropdownMenu align="right">
                           <DropdownItem 
@@ -174,6 +201,15 @@ const PlansPage = () => {
                             }}
                           >
                             Edit
+                          </DropdownItem>
+                          <DropdownItem 
+                            icon={<ShareStatusIcon isPublic={plan.isPublic} size={16} />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSharePlan(plan);
+                            }}
+                          >
+                            {plan.isPublic ? 'Manage Sharing' : 'Share Plan'}
                           </DropdownItem>
                           <DropdownItem 
                             icon={<Trash size={16} />}
@@ -191,7 +227,9 @@ const PlansPage = () => {
                       <CardHeader className="pb-2">
                         <CardTitle className="group flex items-center justify-between">
                           <div className="flex-1 truncate">{plan.title}</div>
-                      
+                          <div className="ml-2">
+                            <ShareStatusIcon isPublic={plan.isPublic} size={16} />
+                          </div>
                         </CardTitle>
                         <div className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                           {plan.description || 'No description'}
@@ -294,6 +332,20 @@ const PlansPage = () => {
             />
           )}
         </Modal>
+        
+        {/* Share Plan Modal - Using reusable component */}
+        <ShareModal
+          isOpen={isShareModalOpen}
+          onClose={closeShareModal}
+          sharingItem={sharingPlan}
+          sharingOption={sharingOption}
+          copySuccess={copySuccess}
+          onSharingOptionChange={setSharingOption}
+          onSave={handleSaveSharing}
+          onCopyLink={handleCopyLink}
+          onSocialShare={handleSocialShare}
+          onRegenerateLink={handleRegenerateLink}
+        />
       </MainLayout>
     </>
   );

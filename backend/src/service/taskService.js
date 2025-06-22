@@ -280,7 +280,7 @@ class TaskService {
             throw new Error("Shareable link is required");
         }
         try {
-            const task = await prismaClient.task.findFirst({
+            return await prismaClient.task.findFirst({
                 where: { shareableLink, isPublic: true },
                 include: {
                     milestones: {
@@ -345,7 +345,7 @@ class TaskService {
         }
     }
 
-     generateLink() {
+     static generateLink() {
         // Generate a unique, URL-friendly shareable link
         // Using a combination of base62 encoding and the current timestamp for uniqueness
         const timestamp = Date.now().toString(36);

@@ -74,3 +74,12 @@ export interface ShareSettings {
   isPublic: boolean;
   regenerateLink?: boolean; // Optional flag to regenerate the sharable link
 }
+
+export interface Shareable {
+  id: string;
+  isPublic: boolean;
+  shareableLink?: string;
+  title: string;
+}
+
+

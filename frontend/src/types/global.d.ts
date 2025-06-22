@@ -45,4 +45,24 @@ declare module 'framer-motion' {
   }>;
 }
 
+// Declare missing Lucide icons
+declare module 'lucide-react' {
+  interface IconProps extends React.SVGProps<SVGSVGElement> {
+    size?: string | number;
+    color?: string;
+    stroke?: string | number;
+  }
+  
+  export const Share: React.FC<IconProps>;
+  export const Globe: React.FC<IconProps>;
+  export const Link: React.FC<IconProps>;
+  export const Copy: React.FC<IconProps>;
+  export const Shield: React.FC<IconProps>;
+  export const Lock: React.FC<IconProps>;
+  export const Eye: React.FC<IconProps>;
+  export const EyeOff: React.FC<IconProps>;
+  export const RefreshCw: React.FC<IconProps>;
+  export const LockOpen: React.FC<IconProps>;
+}
+
 export {};
