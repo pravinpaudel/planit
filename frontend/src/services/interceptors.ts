@@ -125,20 +125,31 @@ export const setupInterceptors = (axiosInstance: AxiosInstance) => {
           console.log('Authentication error response:', response.data);
         }
       } else if (response) {
-        // Handle other errors
-        console.log('Error response data:', response.data);
-        
-        const errorMessage = response.data ? 
-          ((response.data as any).error || 'An unexpected error occurred') : 
-          'An unexpected error occurred';
-        
-        store.dispatch(
-          addNotification({
+
+        if(response.status === 429) {
+          console.log('Rate limit exceeded:', response.data);
+          store.dispatch(addNotification({
             type: 'error',
-            title: 'Request Error',
-            message: errorMessage,
-          })
-        );
+            title: 'Rate Limit Exceeded',
+            message: 'You have exceeded the rate limit. Please try again later.',
+          }))
+        }
+        else {
+          // Handle other errors
+          console.log('Error response data:', response.data);
+          
+          const errorMessage = response.data ? 
+            ((response.data as any).error || 'An unexpected error occurred') : 
+            'An unexpected error occurred';
+          
+          store.dispatch(
+            addNotification({
+              type: 'error',
+              title: 'Request Error',
+              message: errorMessage,
+            })
+          );
+        }
       } else {
         // Network errors or other issues
         store.dispatch(

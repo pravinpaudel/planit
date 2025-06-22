@@ -3,7 +3,8 @@ import {
   CreatePlanData, 
   UpdatePlanData, 
   CreateMilestoneData, 
-  UpdateMilestoneData 
+  UpdateMilestoneData,
+  ShareSettings 
 } from '../../types';
 import planService from '../../services/planService';
 import milestoneService from '../../services/milestoneService';
@@ -119,6 +120,72 @@ export const deleteMilestone = createAsyncThunk(
       return { milestoneId, taskId };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.error || 'Failed to delete milestone');
+    }
+  }
+);
+
+// Share a roadmap
+export const enableRoadmapSharing = createAsyncThunk(
+  'plan/shareRoadmap',
+  async (planId: string, { rejectWithValue }) => {
+    try {
+      const sharableSetting = await planService.enableRoadmapSharing(planId);
+      return sharableSetting;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.error || 'Failed to share roadmap');
+    }
+});
+ 
+// Update roadmap sharing settings
+export const updateRoadmapSharing = createAsyncThunk(
+  'plan/updateRoadmapSharing',
+  async (
+    { planId, shareSettings }: { planId: string; shareSettings: ShareSettings },
+    { rejectWithValue }
+  ) => {
+    try {
+      const updatedSettings = await planService.updateRoadmapSharing(planId, shareSettings);
+      return updatedSettings;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.error || 'Failed to update roadmap sharing');
+    }
+  }
+);
+
+// Disable roadmap sharing
+export const disableRoadmapSharing = createAsyncThunk(
+  'plan/disableRoadmapSharing',
+  async (planId: string, { rejectWithValue }) => {
+    try {
+      const response = await planService.disableRoadmapSharing(planId);
+      return response;
+    } catch (error: any) {
+        return rejectWithValue(error.response?.data?.error || 'Failed to disable roadmap sharing');
+    }
+  });
+
+// Get a shared roadmap by its shared ID
+export const getSharedRoadmap = createAsyncThunk(
+  'plan/getSharedRoadmap',
+  async (shareRoadmapId: string, { rejectWithValue }) => {
+    try {
+      const sharedRoadmap = await planService.getSharedRoadmap(shareRoadmapId);
+      return sharedRoadmap;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.error || 'Failed to get shared roadmap');
+    }
+  }
+);
+
+// Clone a shared roadmap by its shared ID
+export const cloneRoadmap = createAsyncThunk(
+  'plan/cloneRoadmap',
+  async (shareRoadmapId: string, { rejectWithValue }) => {
+    try {
+      const clonedRoadmap = await planService.cloneRoadmap(shareRoadmapId);
+      return clonedRoadmap;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.error || 'Failed to clone roadmap');
     }
   }
 );

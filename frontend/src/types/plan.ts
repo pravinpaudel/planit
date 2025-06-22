@@ -23,6 +23,8 @@ export interface Plan {
   createdAt: string; // ISO format date
   updatedAt: string; // ISO format date
   milestones: Milestone[];
+  isPublic: boolean; // Indicates if the plan is public or private
+  sharableLink?: string; // Optional link for sharing the plan
 }
 
 export interface PlanState {
@@ -66,4 +68,9 @@ export interface MilestoneDetailCardProps {
   onClose: () => void;
   onEdit?: (milestoneId: string) => void;
   onToggleComplete?: (milestoneId: string, isComplete: boolean) => void;
+}
+
+export interface ShareSettings {
+  isPublic: boolean;
+  regenerateLink?: boolean; // Optional flag to regenerate the sharable link
 }
