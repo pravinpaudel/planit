@@ -147,10 +147,16 @@ const PlanDetailPage = () => {
     };
 
     useEffect(() => {
-        if (planId) {
-            dispatch(fetchPlanById(planId));
-        }
-    }, [dispatch, planId]);
+        if (!planId) 
+            return;
+
+        // If the plan is already loaded, no need to fetch again
+        if(activePlan && activePlan.id === planId) 
+            return; 
+        
+        dispatch(fetchPlanById(planId));
+        
+    }, [dispatch, planId, activePlan]);
 
     const handleDelete = () => {
         if (window.confirm('Are you sure you want to delete this plan?')) {

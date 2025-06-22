@@ -43,6 +43,8 @@ const PlansPage = () => {
 
   // Fetch plans when component mounts
   useEffect(() => {
+    // Avoid refetching if plans are already loaded
+    if( plans.length > 0) return; 
     dispatch(fetchPlans());
   }, [dispatch]);
 

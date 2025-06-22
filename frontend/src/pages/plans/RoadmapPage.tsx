@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { MainLayout } from '../../components/layout/MainLayout';
 import { Navigation } from '../../components/layout/Navigation';
 import { useEffect, useState, useMemo } from 'react';
@@ -38,9 +38,13 @@ const RoadmapPage = () => {
   useEffect(() => {
     if (!planId) return;
     
+    // If the plan is already loaded, no need to fetch again
+    if (activePlan && activePlan.id === planId) 
+      return;
+
     // Fetch the latest plan data from the server
     dispatch(fetchPlanById(planId));
-  }, [dispatch, planId]);
+  }, [dispatch, planId, activePlan]);
 
   // Process milestone data when activePlan changes - using useMemo for caching
   const processedMilestones = useMemo(() => {
