@@ -36,6 +36,6 @@ router.put('/:taskId/share', sharingEndpointLimiter, updateShareableLink);
 router.delete('/:taskId/share', deleteShareableLink);
 
 // Clone task route
-router.post('/:taskId/clone', cloneTask);
+router.post('/shared/:taskId/clone', cloneTask);
 
 module.exports = router;

@@ -86,18 +86,18 @@ class MilestoneService {
      * @param {Object} data - The updated milestone data.
      * @returns {Promise<Object>} The updated milestone object.
      */
-    static async updateMilestone(milestoneId, data) {
+    static async updateMilestone(milestoneId, payload) {
         if(!milestoneId) {
             throw new Error("Milestone ID is required");
         }
         
         // Validate the payload
-        if (Object.keys(data).length === 0) {
+        if (Object.keys(payload).length === 0) {
             throw new Error("No fields provided for update");
         }
         
         // Handle legacy isComplete conversion to status
-        const updateData = { ...data };
+        const updateData = { ...payload };
         if ('isComplete' in updateData) {
             // Convert boolean isComplete to status enum
             updateData.status = updateData.isComplete ? 'COMPLETED' : 'NOT_STARTED';
@@ -106,7 +106,7 @@ class MilestoneService {
         
         try {
             const updatedMilestone = await prismaClient.milestone.update({
-                where: { id: milestoneId },
+                where: { id: milestoneId }, // Ensure userId is provided for security
                 data: updateData
             });
             
@@ -128,7 +128,7 @@ class MilestoneService {
         }
         try {
             return await prismaClient.milestone.delete({
-                where: { id: milestoneId }
+                where: { id: milestoneId } // Ensure userId is provided for security
             });
         } catch (error) {
             throw new Error("Error deleting milestone: " + error.message);

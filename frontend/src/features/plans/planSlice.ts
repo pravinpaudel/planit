@@ -249,19 +249,19 @@ const planSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(enableRoadmapSharing.fulfilled, (state, action: PayloadAction<{isPublic: boolean, sharableLink: string}>) => {
+      .addCase(enableRoadmapSharing.fulfilled, (state, action: PayloadAction<{isPublic: boolean, shareableLink: string}>) => {
         state.isLoading = false;
         // Update the active plan with the new sharing settings
         if (state.activePlan) {
           state.activePlan.isPublic = action.payload.isPublic;
-          state.activePlan.sharableLink = action.payload.sharableLink;
+          state.activePlan.shareableLink = action.payload.shareableLink;
         }
         
         // Update the plans list with the new sharing settings
         const planIndex = state.plans.findIndex((plan) => plan.id === state.activePlan?.id);
         if(planIndex !== -1) {
           state.plans[planIndex].isPublic = action.payload.isPublic;
-          state.plans[planIndex].sharableLink = action.payload.sharableLink;
+          state.plans[planIndex].shareableLink = action.payload.shareableLink;
         }
       })
       .addCase(enableRoadmapSharing.rejected, (state, action) => {
@@ -279,14 +279,14 @@ const planSlice = createSlice({
         // Update the active plan to remove sharing settings
         if(state.activePlan) {
           state.activePlan.isPublic = false;
-          state.activePlan.sharableLink = undefined; 
+          state.activePlan.shareableLink = undefined; 
         }
         
         // Update the plans list to remove sharing settings
         const planIndex = state.plans.findIndex((plan) => plan.id === state.activePlan?.id);
         if(planIndex !== -1) {
           state.plans[planIndex].isPublic = false;
-          state.plans[planIndex].sharableLink = undefined;
+          state.plans[planIndex].shareableLink = undefined;
         }
       })
       .addCase(disableRoadmapSharing.rejected, (state, action) => {

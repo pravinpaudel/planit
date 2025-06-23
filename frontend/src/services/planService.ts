@@ -33,14 +33,24 @@ export const planService = {
   },
 
   // Share a plan (make it public and generate a sharable link)
-  enableRoadmapSharing: async (planId: string): Promise<{isPublic: boolean, sharableLink: string}> => {
+  enableRoadmapSharing: async (planId: string): Promise<{isPublic: boolean, shareableLink: string}> => {
     const response = await axiosInstance.post(`/tasks/${planId}/share`);
+    if (response.data && response.data.shareableLink) {
+      return {
+        isPublic: response.data.isPublic,
+        shareableLink: response.data.shareableLink
+      };
+    }
     return response.data;
   },
 
   // Update the shared roadmap settings (e.g., make it public/private, regenerate link)
   updateRoadmapSharing: async (planId: string, shareSettings: ShareSettings): Promise<Plan> => {
     const response = await axiosInstance.put(`/tasks/${planId}/share`, shareSettings);
+    // Normalize response if needed
+    if (response.data && response.data.shareableLink) {
+      response.data.shareableLink = response.data.shareableLink;
+    }
     return response.data;
   },
 
@@ -57,8 +67,8 @@ export const planService = {
   },
 
   // Clone a shared roadmap by its shared ID
-  cloneRoadmap: async (sharedId: string): Promise<Plan> => {
-    const response = await axiosInstance.post(`/tasks/shared/${sharedId}/clone`);
+  cloneRoadmap: async (taskId: string): Promise<Plan> => {
+    const response = await axiosInstance.post(`/tasks/shared/${taskId}/clone`);
     return response.data;
   }
 };

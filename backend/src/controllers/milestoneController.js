@@ -45,7 +45,7 @@ async function handleDeleteMilestone(req, res) {
         return res.status(400).json({ error: "Milestone ID is required" });
     }
     try {
-        const deletedMilestone = await MilestoneService.deleteMilestone(milestoneId);
+        const deletedMilestone = await MilestoneService.deleteMilestone(milestoneId, req.body);
         res.status(200).json(deletedMilestone);
     } catch (error) {
         res.status(400).json({ error: error.message });

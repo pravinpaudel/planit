@@ -129,8 +129,8 @@ export const enableRoadmapSharing = createAsyncThunk(
   'plan/shareRoadmap',
   async (planId: string, { rejectWithValue }) => {
     try {
-      const sharableSetting = await planService.enableRoadmapSharing(planId);
-      return sharableSetting;
+      const shareableSetting = await planService.enableRoadmapSharing(planId);
+      return shareableSetting;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.error || 'Failed to share roadmap');
     }

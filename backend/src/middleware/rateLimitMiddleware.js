@@ -26,7 +26,7 @@ const createRateLimiter = (options = {}) => {
 // Pre-configured limiters for different scenarios
 const publicEndpointLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 30, // Limit each IP to 30 requests per 15 minutes
+  max: 50, // Limit each IP to 30 requests per 15 minutes
   message: 'Too many requests to public endpoints, please try again later.'
 });
 

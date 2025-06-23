@@ -24,7 +24,7 @@ export interface Plan {
   updatedAt: string; // ISO format date
   milestones: Milestone[];
   isPublic: boolean; // Indicates if the plan is public or private
-  sharableLink?: string; // Optional link for sharing the plan
+  shareableLink?: string; // Optional link for sharing the plan
 }
 
 export interface PlanState {

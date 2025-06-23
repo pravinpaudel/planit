@@ -1,4 +1,5 @@
 const { UserService } = require('./userService');
+const { MilestoneService } = require('./milestoneService');
 const { prismaClient } = require('../utils/db');
 
 class TaskService {
@@ -316,29 +317,43 @@ class TaskService {
             if (!task) {
                 throw new Error("Task not found");
             }
-
-            // Create a new task with the same details but different user ID
+            
             const clonedTask = await prismaClient.task.create({
                 data: {
                     title: task.title,
                     description: task.description,
-                    userId,
+                    userId: userId, // Assign the cloned task to the new user
+                    originalTaskId: task.id // Keep track of the original task
+                }
+            });
+            
+            const flattenedMilestones = this.flattenMilestones(task.milestones);
+            
+            console.log("Flattened Milestones:", Array.from(flattenedMilestones.values()));
+
+            // Create a new milestone for the cloned task
+            for(const [id, milestone] of flattenedMilestones.entries()) {
+                await MilestoneService.createMilestone({ 
+                    title: milestone.title,
+                    description: milestone.description,
+                    deadline: milestone.deadline,
+                    taskId: clonedTask.id,
+                    parentId: milestone.parentId
+                })
+            }
+            
+            // Get the cloned task with its milestones
+            const clonedTaskWithMilestones = await prismaClient.task.findUnique({
+                where: { id: clonedTask.id },
+                include: {
                     milestones: {
-                        create: task.milestones.map(milestone => ({
-                            title: milestone.title,
-                            description: milestone.description,
-                            children: {
-                                create: milestone.children.map(child => ({
-                                    title: child.title,
-                                    description: child.description
-                                }))
-                            }
-                        }))
+                        include: {
+                            children: true
+                        }
                     }
                 }
             });
-
-            return clonedTask;
+            return clonedTaskWithMilestones;
         } catch (error) {
             console.error("Error cloning task:", error);
             throw new Error("Error cloning task: " + error.message);
@@ -352,6 +367,42 @@ class TaskService {
         const randomStr = Math.random().toString(36).substring(2, 8);
         const shareableLink = `${timestamp}-${randomStr}`;
         return shareableLink;
+    }
+
+    static flattenMilestones(milestones) {
+        // Initialize a Map to hold milestones by ID to prevent duplicates
+        const milestoneMap = new Map();
+        
+        // Function to recursively gather milestones and their children
+        const gatherMilestones = (items) => {
+            items.forEach(milestone => {
+                // Add the current milestone to the map, using ID as key to prevent duplicates
+                milestoneMap.set(milestone.id, milestone);
+                
+                // If this milestone has children, recursively gather them
+                if (milestone.children && milestone.children.length > 0) {
+                    gatherMilestones(milestone.children);
+                }
+            });
+        };
+    
+        // Start the recursion with the top-level milestones
+        gatherMilestones(milestones);
+        return milestoneMap;
+
+        // if(milestone.children && milestone.children.length > 0) {
+        //     for (const child of milestone.children) {
+        //         if(!map[child.id]){
+        //             map[child.id] = {
+        //                 title: child.title,
+        //                 description: child.description,
+        //                 deadline: child.deadline,
+        //                 parentId: child.parentId,
+        //             }
+        //             this.flattenMilestones(child, map);
+        //         }
+        //     }
+        // }
     }
 
 }

@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '../../components/layout/MainLayout';
 import { Navigation } from '../../components/layout/Navigation';
 import { useEffect, useState, useMemo } from 'react';
@@ -7,12 +7,14 @@ import D3TreeVisualization from '../../components/plans/D3TreeVisualization';
 import transformToFrontendState from '../../utils/transformToFrontendState';
 import { getAllMilestones } from '../../utils/milestoneUtils';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
-import { fetchPlanById } from '../../features/plans/planThunks';
+import { fetchPlanById, getSharedRoadmap, cloneRoadmap } from '../../features/plans/planThunks';
 import { selectActivePlan, selectPlanLoading, selectPlanError } from '../../features/plans/planSelectors';
 import { Button } from '../../components/ui/Button';
-import { Plus } from 'lucide-react';
+import { Plus, Copy } from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
 import MilestoneForm from '../../components/forms/MilestoneForm';
+import { useAuth } from '../../hooks/useAuth';
+import { addNotification } from '../../features/ui/uiSlice';
 
 // Helper function to preserve milestone order by creation date
 const sortMilestonesByCreationDate = (milestones: Milestone[]): Milestone[] => {
@@ -25,6 +27,10 @@ const sortMilestonesByCreationDate = (milestones: Milestone[]): Milestone[] => {
 
 const RoadmapPage = () => {
   const { planId } = useParams<{ planId: string }>();
+  const { sharedId } = useParams<{ sharedId: string }>();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  
   const dispatch = useAppDispatch();
   const activePlan = useAppSelector(selectActivePlan);
   const isLoading = useAppSelector(selectPlanLoading);
@@ -33,18 +39,31 @@ const RoadmapPage = () => {
   const [selectedMilestone, setSelectedMilestone] = useState<string | null>(null);
   const [showMilestoneModal, setShowMilestoneModal] = useState<boolean>(false);
   const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
+  const [isCloning, setIsCloning] = useState<boolean>(false);
+  const [showCloneConfirmModal, setShowCloneConfirmModal] = useState<boolean>(false);
   
   // Fetch plan data when component mounts
   useEffect(() => {
-    if (!planId) return;
+    if (!planId && !sharedId) return;
     
-    // If the plan is already loaded, no need to fetch again
-    if (activePlan && activePlan.id === planId) 
+    // For regular plans: check if the plan is already loaded
+    if (planId && activePlan && activePlan.id === planId) {
       return;
-
-    // Fetch the latest plan data from the server
-    dispatch(fetchPlanById(planId));
-  }, [dispatch, planId, activePlan]);
+    }
+    
+    // For shared plans: check if a shared plan is already loaded 
+    if (sharedId && activePlan && activePlan.shareableLink?.includes(sharedId)) {
+      return;
+    }
+    
+    // Fetch data based on available ID
+    if (sharedId) {
+      dispatch(getSharedRoadmap(sharedId));
+    } else if (planId) {
+      dispatch(fetchPlanById(planId));
+    }
+    
+  }, [dispatch, planId, sharedId, activePlan?.id, activePlan?.shareableLink]);
 
   // Process milestone data when activePlan changes - using useMemo for caching
   const processedMilestones = useMemo(() => {
@@ -103,6 +122,71 @@ const RoadmapPage = () => {
     if (planId) {
       dispatch(fetchPlanById(planId));
     }
+  };
+
+  const handleCloneRoadmap = async () => {
+    if(!activePlan) 
+      return;
+
+    // Check if user is authenticated
+    if(!isAuthenticated) {
+      // Store the roadmap info to clone after login
+      localStorage.setItem('pendingCloneRoadmap', activePlan.id || '');
+      dispatch(addNotification({
+        type: 'info',
+        message: 'Please log in to clone this roadmap'
+      }));
+      navigate('/login');
+      return;
+    }
+
+    setIsCloning(true);
+
+    // Clone the roadmap using the task id if authenticated
+    if(activePlan.id) {
+      try {
+        const resultAction = await dispatch(cloneRoadmap(activePlan.id));
+        
+        if (cloneRoadmap.fulfilled.match(resultAction)) {
+          const clonedPlan = resultAction.payload;
+          
+          // Track successful clone (you can implement analytics here)
+          console.log('Roadmap cloned successfully', { 
+            originalId: activePlan.id, 
+            clonedId: clonedPlan.id 
+          });
+          
+          dispatch(addNotification({
+            type: 'success',
+            message: 'Roadmap cloned successfully!'
+          }));
+          
+          // Navigate to the cloned roadmap page
+          navigate(`/plans/${clonedPlan.id}`);
+        } else if (cloneRoadmap.rejected.match(resultAction)) {
+          const error = resultAction.error;
+          console.error('Failed to clone roadmap:', error);
+          dispatch(addNotification({
+            type: 'error',
+            message: `Failed to clone roadmap: ${error.message || 'Unknown error'}`
+          }));
+        }
+      } catch (error) {
+        console.error('Exception while cloning roadmap:', error);
+        dispatch(addNotification({
+          type: 'error',
+          message: 'An unexpected error occurred. Please try again.'
+        }));
+      } finally {
+        setIsCloning(false);
+        setShowCloneConfirmModal(false);
+      }
+    } 
+  }
+  
+  // Function to open the clone confirmation modal
+  const handleOpenCloneConfirmation = () => {
+    setShowCloneConfirmModal(true);
   };
   
   return (
@@ -203,6 +287,60 @@ const RoadmapPage = () => {
             )}
           </Modal>
         </div>
+
+        {sharedId && (
+          <Button
+            variant="default"
+            onClick={handleOpenCloneConfirmation}
+            className="fixed bottom-6 right-6 flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 transition-colors rounded-full shadow-lg"
+            disabled={isCloning}
+          >
+            {isCloning ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Cloning...
+              </>
+            ) : (
+              <>
+                <Copy size={18} />
+                Clone Roadmap
+              </>
+            )}
+          </Button>
+        )}
+        
+        {/* Clone Confirmation Modal */}
+        <Modal 
+          isOpen={showCloneConfirmModal} 
+          onClose={() => setShowCloneConfirmModal(false)}
+          title="Clone Roadmap"
+        >
+          <div className="p-4">
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to clone this roadmap? A new copy will be created in your account.
+            </p>
+            <div className="flex justify-end gap-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowCloneConfirmModal(false)}
+                className="px-4 py-2"
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="default" 
+                onClick={handleCloneRoadmap}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700"
+                disabled={isCloning}
+              >
+                {isCloning ? 'Cloning...' : 'Clone Roadmap'}
+              </Button>
+            </div>
+          </div>
+        </Modal>
       </MainLayout>
     </>
   );
