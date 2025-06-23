@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MainLayout } from '../../components/layout/MainLayout';
@@ -16,37 +16,7 @@ import MilestoneForm from '../../components/forms/MilestoneForm';
 import MilestoneDetailCard from '../../components/plans/MilestoneDetailCard';
 import { Milestone } from '../../types';
 import { formatDate } from '../../utils/dateUtils';
-
-// Helper function to flatten milestone hierarchy
-export const getAllMilestones = (milestones: Milestone[] = []): Milestone[] => {
-    // Initialize a Map to hold milestones by ID to prevent duplicates
-    const milestoneMap = new Map<string, Milestone>();
-    
-    // Function to recursively gather milestones and their children
-    const gatherMilestones = (items: Milestone[]) => {
-        items.forEach(milestone => {
-            // Add the current milestone to the map, using ID as key to prevent duplicates
-            milestoneMap.set(milestone.id, milestone);
-            
-            // If this milestone has children, recursively gather them
-            if (milestone.children && milestone.children.length > 0) {
-                gatherMilestones(milestone.children);
-            }
-        });
-    };
-    
-    // Start the recursion with the top-level milestones
-    gatherMilestones(milestones);
-    
-    // Return the values from the map as an array (no duplicates)
-    return Array.from(milestoneMap.values());
-};
-
-// Function to get upcoming milestones along with the not completed ones
-const getUpcomingMilestones = (milestones: Milestone[]): Milestone[] => {
-    return milestones.filter(milestone => milestone.status !== "COMPLETED")
-        .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
-};  
+import { getAllMilestones, getUpcomingMilestones, statusConfig, getStatusBorderColor, getStatusBackgroundColor } from '../../utils/milestoneUtils';
 
 const PlanDetailPage = () => {
     const { planId } = useParams<{ planId: string }>();
@@ -61,6 +31,28 @@ const PlanDetailPage = () => {
     const [viewingMilestone, setViewingMilestone] = useState<Milestone | null>(null);
     const [isEditing, setIsEditing] = useState(false);
 
+    const MILESTONES_TO_DISPLAY = 5; // Number of milestones to display in the upcoming section
+    
+    // Memoize calculated values to avoid redundant calculations
+    const allMilestones = useMemo(() => {
+        if (!activePlan) return [];
+        return getAllMilestones(activePlan.milestones);
+    }, [activePlan?.milestones]);
+    
+    const milestoneStats = useMemo(() => {
+        const totalMilestones = allMilestones.length;
+        const completedMilestones = allMilestones.filter(m => m.isComplete).length;
+        return {
+            total: totalMilestones,
+            completed: completedMilestones,
+            percentage: totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0
+        };
+    }, [allMilestones]);
+    
+    const upcomingMilestones = useMemo(() => {
+        return getUpcomingMilestones(allMilestones).slice(0, MILESTONES_TO_DISPLAY);
+    }, [allMilestones, MILESTONES_TO_DISPLAY]);
+    
     // Handle creating a new milestone
     const handleOpenMilestoneModal = () => {
         setIsEditing(false);
@@ -96,8 +88,7 @@ const PlanDetailPage = () => {
     const handleMilestoneClick = (milestoneId: string) => {
         setSelectedMilestone(milestoneId);
         
-        // Find the milestone details from the active plan - use getAllMilestones to find in hierarchy
-        const allMilestones = getAllMilestones(activePlan?.milestones);
+        // Find the milestone details using our memoized allMilestones
         const milestoneDetails = allMilestones.find(m => m.id === milestoneId);
         
         if (milestoneDetails) {
@@ -118,8 +109,7 @@ const PlanDetailPage = () => {
     const handleToggleComplete = (milestoneId: string, isComplete: boolean) => {
         if (!activePlan) return;
         
-        // Find the milestone in the hierarchy
-        const allMilestones = getAllMilestones(activePlan.milestones);
+        // Find the milestone using our memoized allMilestones
         const milestone = allMilestones.find(m => m.id === milestoneId);
         
         if (milestone) {
@@ -157,10 +147,16 @@ const PlanDetailPage = () => {
     };
 
     useEffect(() => {
-        if (planId) {
-            dispatch(fetchPlanById(planId));
-        }
-    }, [dispatch, planId]);
+        if (!planId) 
+            return;
+
+        // If the plan is already loaded, no need to fetch again
+        if(activePlan && activePlan.id === planId) 
+            return; 
+        
+        dispatch(fetchPlanById(planId));
+        
+    }, [dispatch, planId, activePlan]);
 
     const handleDelete = () => {
         if (window.confirm('Are you sure you want to delete this plan?')) {
@@ -335,7 +331,7 @@ const PlanDetailPage = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <p className="text-xl font-bold mb-0.5">{getAllMilestones(activePlan.milestones).length}</p>
+                                    <p className="text-xl font-bold mb-0.5">{milestoneStats.total}</p>
                                     <p className="text-xs text-gray-600 dark:text-gray-400">Milestones</p>
                                 </div>
                             </CardContent>
@@ -353,7 +349,7 @@ const PlanDetailPage = () => {
                                 </div>
                                 <div>
                                     <p className="text-xl font-bold mb-0.5">
-                                        {getAllMilestones(activePlan.milestones).filter(m => m.isComplete).length} / {getAllMilestones(activePlan.milestones).length}
+                                        {milestoneStats.completed} / {milestoneStats.total}
                                     </p>
                                     <p className="text-xs text-gray-600 dark:text-gray-400">Progress</p>
                                 </div>
@@ -401,11 +397,11 @@ const PlanDetailPage = () => {
                             </Card>
                         ) : (
                             <div className="space-y-4">
-                                {/* Flatten the milestone structure to include both top-level and children */}
-                                {getUpcomingMilestones(getAllMilestones(activePlan.milestones)).slice(0, 5).map((milestone, index) => (
+                                {/* Using memoized upcomingMilestones to avoid redundant calculations */}
+                                {upcomingMilestones.map((milestone, index) => (
                                     <div key={`${milestone.id}`}>
                                         <Card 
-                                            className={`transition-all ${milestone.isComplete ? 'bg-green-50 dark:bg-green-900/20' : ''} hover:shadow-md hover:border-roadmap-primary/50`}
+                                            className={`transition-all hover:shadow-md hover:border-roadmap-primary/50 relative overflow-hidden`}
                                             hover={true}
                                             clickable
                                             variant="elevated"
@@ -414,14 +410,35 @@ const PlanDetailPage = () => {
                                                 handleMilestoneClick(milestone.id);
                                             }}
                                         >
-                                            <CardContent className="p-4">
+                                            {/* Color-coded ribbon on the left */}
+                                            <div 
+                                                className="absolute left-0 top-0 bottom-0 w-1"
+                                                style={{
+                                                  backgroundColor: statusConfig[milestone.status].ribbonColor,
+                                                  zIndex: 1
+                                                }}
+                                                aria-hidden="true"
+                                            />
+                                            
+                                            <CardContent className="p-4 pl-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <h3 className={`font-medium flex items-center gap-1 ${milestone.isComplete ? 'text-green-700 dark:text-green-400' : ''}`}>
-                                                            {/* {milestone.parentId && <span className="mr-1 text-xs text-gray-500"></span>} */}
-                                                            {milestone.title}
-                                                            <span className="ml-1 text-xs text-blue-500 font-normal">(View details)</span>
-                                                        </h3>
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <h3 className={`font-medium ${milestone.isComplete ? 'text-green-700 dark:text-green-400' : ''}`}>
+                                                                {milestone.title}
+                                                                
+                                                            </h3>
+                                                            
+                                                            {/* Status Badge */}
+                                                            <Badge 
+                                                                className={`ml-2 flex items-center gap-1 whitespace-nowrap ${statusConfig[milestone.status].color}`}
+                                                                size="sm"
+                                                            >
+                                                                {statusConfig[milestone.status].icon}
+                                                                <span>{statusConfig[milestone.status].label}</span>
+                                                            </Badge>
+                                                            
+                                                        </div>
                                                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                                             {milestone.description.length > 60 
                                                                 ? `${milestone.description.substring(0, 60)}...` 
@@ -479,10 +496,10 @@ const PlanDetailPage = () => {
                             onClose={handleCloseMilestoneModal}
                             onSuccess={handleMilestoneSuccess}
                             existingMilestone={isEditing && selectedMilestone ? 
-                                getAllMilestones(activePlan.milestones).find(m => m.id === selectedMilestone) : 
+                                allMilestones.find(m => m.id === selectedMilestone) : 
                                 undefined
                             }
-                            parentOptions={getAllMilestones(activePlan.milestones)
+                            parentOptions={allMilestones
                                 .filter(milestone => {
                                     // Don't include self as parent option when editing
                                     if (isEditing && selectedMilestone && milestone.id === selectedMilestone) {

@@ -14,6 +14,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Enable if your app is behind a reverse proxy (like Nginx or Heroku)
+// This ensures rate limiting works correctly with the actual client IP
+app.set('trust proxy', 1);
+
 // Request logging middleware
 if (process.env.NODE_ENV !== 'test') {
   app.use((req, res, next) => {

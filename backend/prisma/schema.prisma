@@ -49,6 +49,15 @@ model Task {
   updatedAt  DateTime   @updatedAt
 
   milestones Milestone[]
+
+  // Roadmap sharing fields
+  isPublic      Boolean   @default(false) @map("is_public")
+  shareableLink String?   @unique @map("shareable_link") // Making it optional and unique
+  
+  // Self-relation for cloned roadmaps
+  originalTaskId String?  @map("original_task_id") // Making it optional
+  originalTask   Task?    @relation("ClonedTasks", fields: [originalTaskId], references: [id], onDelete: SetNull)
+  clonedTasks    Task[]   @relation("ClonedTasks")
   
   @@map("tasks")
 }

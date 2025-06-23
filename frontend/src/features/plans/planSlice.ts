@@ -9,7 +9,12 @@ import {
   deletePlan,
   createMilestone,
   updateMilestone,
-  deleteMilestone
+  deleteMilestone,
+  enableRoadmapSharing,
+  getSharedRoadmap,
+  cloneRoadmap,
+  updateRoadmapSharing,
+  disableRoadmapSharing
 } from './planThunks';
 
 // Initial state
@@ -237,8 +242,114 @@ const planSlice = createSlice({
       .addCase(deleteMilestone.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
-      });
-  },
+      })
+
+      // Enable roadmap sharing
+      .addCase(enableRoadmapSharing.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(enableRoadmapSharing.fulfilled, (state, action: PayloadAction<{isPublic: boolean, shareableLink: string}>) => {
+        state.isLoading = false;
+        // Update the active plan with the new sharing settings
+        if (state.activePlan) {
+          state.activePlan.isPublic = action.payload.isPublic;
+          state.activePlan.shareableLink = action.payload.shareableLink;
+        }
+        
+        // Update the plans list with the new sharing settings
+        const planIndex = state.plans.findIndex((plan) => plan.id === state.activePlan?.id);
+        if(planIndex !== -1) {
+          state.plans[planIndex].isPublic = action.payload.isPublic;
+          state.plans[planIndex].shareableLink = action.payload.shareableLink;
+        }
+      })
+      .addCase(enableRoadmapSharing.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      // Disable roadmap sharing
+      .addCase(disableRoadmapSharing.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(disableRoadmapSharing.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // Update the active plan to remove sharing settings
+        if(state.activePlan) {
+          state.activePlan.isPublic = false;
+          state.activePlan.shareableLink = undefined; 
+        }
+        
+        // Update the plans list to remove sharing settings
+        const planIndex = state.plans.findIndex((plan) => plan.id === state.activePlan?.id);
+        if(planIndex !== -1) {
+          state.plans[planIndex].isPublic = false;
+          state.plans[planIndex].shareableLink = undefined;
+        }
+      })
+      .addCase(disableRoadmapSharing.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      // Share a roadmap
+      .addCase(updateRoadmapSharing.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateRoadmapSharing.fulfilled, (state, action: PayloadAction<Plan>) => {
+        state.isLoading = false;
+        // Update the active plan with the new sharing settings
+        if (state.activePlan) {
+          state.activePlan = action.payload;
+        }
+        
+        // Update the plans list with the new sharing settings
+        const planIndex = state.plans.findIndex((plan) => plan.id === state.activePlan?.id);
+        if(planIndex !== -1) {
+          state.plans[planIndex] = action.payload;
+        }
+      })
+      .addCase(updateRoadmapSharing.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      // Fetch shared roadmap
+      .addCase(getSharedRoadmap.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getSharedRoadmap.fulfilled, (state, action: PayloadAction<Plan>) => {
+        state.isLoading = false;
+        // Set the active plan to the fetched shared roadmap
+        state.activePlan = action.payload;
+      })
+      .addCase(getSharedRoadmap.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      // Clone a shared roadmap
+      .addCase(cloneRoadmap.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(cloneRoadmap.fulfilled, (state, action: PayloadAction<Plan>) => {
+        state.isLoading = false;
+        // Add the cloned plan to the plans list
+        state.plans.push(action.payload);
+        // Optionally set it as the active plan
+        state.activePlan = action.payload;
+      })
+      .addCase(cloneRoadmap.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+  }
 });
 
 export const { resetPlanState, clearPlanError } = planSlice.actions;

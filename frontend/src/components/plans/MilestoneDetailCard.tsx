@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/Card';
 import { Clock, Calendar, CheckCircle, X, Target, Edit } from 'lucide-react';
@@ -14,11 +14,28 @@ const MilestoneDetailCard: React.FC<MilestoneDetailCardProps> = ({
   onEdit,
   onToggleComplete
 }) => {
-  const status = statusConfig[milestone.status];
-  const isCompleted = milestone.status === 'COMPLETED' || milestone.isComplete;
-  const daysUntilDeadline = Math.ceil((new Date(milestone.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-  const isOverdue = daysUntilDeadline < 0 && !isCompleted;
-  const creationDate = formatDate(milestone.createdAt);
+  // Memoize calculated values to avoid redundant calculations on re-renders
+  const { 
+    status, 
+    isCompleted,
+    daysUntilDeadline, 
+    isOverdue, 
+    creationDate 
+  } = useMemo(() => {
+    const status = statusConfig[milestone.status];
+    const isCompleted = milestone.status === 'COMPLETED' || milestone.isComplete;
+    const daysUntilDeadline = Math.ceil((new Date(milestone.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+    const isOverdue = daysUntilDeadline < 0 && !isCompleted;
+    const creationDate = formatDate(milestone.createdAt);
+    
+    return {
+      status,
+      isCompleted,
+      daysUntilDeadline,
+      isOverdue,
+      creationDate
+    };
+  }, [milestone.status, milestone.isComplete, milestone.deadline, milestone.createdAt]);
   
   return (
     <motion.div
@@ -29,8 +46,10 @@ const MilestoneDetailCard: React.FC<MilestoneDetailCardProps> = ({
       className="milestone-detail-card"
     >
       {/* Top ribbon based on status */}
-      <div className={`h-2 w-full ${status.color.split(' ')[0]} rounded-t-lg`}></div>
-      
+      <div className={`h-2 w-full ${status.ribbonColor} rounded-t-lg`}
+        style={{ backgroundColor: status.ribbonColor }}>
+      </div>
+
       <CardHeader>
         <div className="flex justify-between items-center">
           <Badge variant="outline" className={`${status.color} status-badge`}>

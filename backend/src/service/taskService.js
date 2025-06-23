@@ -1,4 +1,5 @@
 const { UserService } = require('./userService');
+const { MilestoneService } = require('./milestoneService');
 const { prismaClient } = require('../utils/db');
 
 class TaskService {
@@ -123,31 +124,6 @@ class TaskService {
                 throw error;
             }
             throw new Error("Error deleting task: " + error.message);
-        }
-    }
-
-    static async getTaskById(taskId) {
-        if(!taskId) {
-            throw new Error("Task ID is required");
-        }
-        try {
-            const task = await prismaClient.task.findUnique({
-                where: { id: taskId },
-                include: {
-                    milestones: {
-                        include: {
-                            children: true
-                        }
-                    }
-                }
-            });
-            if (!task) {
-                throw new Error("Task not found");
-            }
-            return task;
-        } catch (error) {
-            console.error("Error retrieving task:", error);
-            throw new Error("Error retrieving task: " + error.message);
         }
     }
 }

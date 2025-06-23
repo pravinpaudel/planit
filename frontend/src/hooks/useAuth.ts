@@ -53,3 +53,8 @@ export const useAuthRedirect = (redirectTo: string = '/login') => {
 
   return isAuthenticated;
 };
+
+/**
+ * Note: Pending roadmap clones are now handled directly in the ProtectedRoute component
+ * to ensure they're processed right after authentication
+ */

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAppDispatch } from '../../hooks/reduxHooks';
 import { createMilestone, updateMilestone } from '../../features/plans/planThunks';
 import { Button } from '../ui/Button';
@@ -20,15 +20,24 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
   parentOptions = []
 }) => {
   const dispatch = useAppDispatch();
-  const [title, setTitle] = useState(existingMilestone?.title || '');
-  const [description, setDescription] = useState(existingMilestone?.description || '');
-  const [deadline, setDeadline] = useState(
-    existingMilestone?.deadline 
+  
+  // Memoize initial form state derived from the milestone to avoid unnecessary recalculations
+  const initialFormState = useMemo(() => ({
+    title: existingMilestone?.title || '',
+    description: existingMilestone?.description || '',
+    deadline: existingMilestone?.deadline 
       ? new Date(existingMilestone.deadline).toISOString().substring(0, 10) 
-      : ''
-  );
-  const [parentId, setParentId] = useState<string | null>(existingMilestone?.parentId || null);
-  const [status, setStatus] = useState<MilestoneStatus>(existingMilestone?.status || 'NOT_STARTED');
+      : '',
+    parentId: existingMilestone?.parentId || null as string | null,
+    status: existingMilestone?.status || 'NOT_STARTED' as MilestoneStatus
+  }), [existingMilestone]);
+  
+  // Use the memoized initial state for form fields
+  const [title, setTitle] = useState(initialFormState.title);
+  const [description, setDescription] = useState(initialFormState.description);
+  const [deadline, setDeadline] = useState(initialFormState.deadline);
+  const [parentId, setParentId] = useState<string | null>(initialFormState.parentId);
+  const [status, setStatus] = useState<MilestoneStatus>(initialFormState.status);
   const [errors, setErrors] = useState({ title: '', description: '', deadline: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -121,26 +130,28 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
 
       {parentOptions.length > 0 && (
         <div>
-          <label htmlFor="parent" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Parent Milestone (Optional)
-          </label>
-          <select
-            id="parent"
-            value={parentId || ''}
-            onChange={(e) => setParentId(e.target.value || null)}
-            className="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
-          >
-            <option value="">None (Top Level)</option>
-            {parentOptions.map(option => (
-              // Don't include self as a parent option when editing
-              existingMilestone && option.id === existingMilestone.id ? null : (
-                <option key={option.id} value={option.id}>
-                  {option.title}
-                </option>
-              )
-            ))}
-          </select>
-        </div>
+        <label htmlFor="parent" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Parent Milestone (Optional)
+        </label>
+        <select
+          id="parent"
+          value={parentId || ''}
+          onChange={(e) => setParentId(e.target.value || null)}
+          className="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+        >
+          <option value="">None (Top Level)</option>
+          {useMemo(() => {
+            // Filter out self from parent options when editing
+            return parentOptions.filter(option => 
+              !existingMilestone || option.id !== existingMilestone.id
+            ).map(option => (
+              <option key={option.id} value={option.id}>
+                {option.title}
+              </option>
+            ));
+          }, [parentOptions, existingMilestone])}
+        </select>
+      </div>
       )}
 
       <div>
