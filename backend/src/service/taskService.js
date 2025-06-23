@@ -326,20 +326,29 @@ class TaskService {
                     originalTaskId: task.id // Keep track of the original task
                 }
             });
-            
-            const flattenedMilestones = this.flattenMilestones(task.milestones);
-            
-            console.log("Flattened Milestones:", Array.from(flattenedMilestones.values()));
 
-            // Create a new milestone for the cloned task
-            for(const [id, milestone] of flattenedMilestones.entries()) {
-                await MilestoneService.createMilestone({ 
-                    title: milestone.title,
-                    description: milestone.description,
-                    deadline: milestone.deadline,
-                    taskId: clonedTask.id,
-                    parentId: milestone.parentId
+            // Create a mapping to track original milestone IDs to new milestone IDs
+            const milestoneIdMap = new Map();
+
+            // Create cloned milestones first
+            for (const milestone of task.milestones) {
+                const clonedMilestone = await MilestoneService.createMilestone({
+                        title: milestone.title,
+                        description: milestone.description,
+                        deadline: milestone.deadline,
+                        taskId: clonedTask.id
                 })
+                // Store the mapping of original ID to cloned ID
+                milestoneIdMap.set(milestone.id, clonedMilestone.id);
+            }
+
+            // Now set-up the parent-child relationships for cloned milestones
+            for (const milestone of task.milestones) {
+                if(milestone.parentId) {
+                    await MilestoneService.updateMilestone(milestoneIdMap.get(milestone.id),{
+                        parentId: milestoneIdMap.get(milestone.parentId) // Use the cloned ID for parent
+                    })
+                }
             }
             
             // Get the cloned task with its milestones
@@ -368,43 +377,6 @@ class TaskService {
         const shareableLink = `${timestamp}-${randomStr}`;
         return shareableLink;
     }
-
-    static flattenMilestones(milestones) {
-        // Initialize a Map to hold milestones by ID to prevent duplicates
-        const milestoneMap = new Map();
-        
-        // Function to recursively gather milestones and their children
-        const gatherMilestones = (items) => {
-            items.forEach(milestone => {
-                // Add the current milestone to the map, using ID as key to prevent duplicates
-                milestoneMap.set(milestone.id, milestone);
-                
-                // If this milestone has children, recursively gather them
-                if (milestone.children && milestone.children.length > 0) {
-                    gatherMilestones(milestone.children);
-                }
-            });
-        };
-    
-        // Start the recursion with the top-level milestones
-        gatherMilestones(milestones);
-        return milestoneMap;
-
-        // if(milestone.children && milestone.children.length > 0) {
-        //     for (const child of milestone.children) {
-        //         if(!map[child.id]){
-        //             map[child.id] = {
-        //                 title: child.title,
-        //                 description: child.description,
-        //                 deadline: child.deadline,
-        //                 parentId: child.parentId,
-        //             }
-        //             this.flattenMilestones(child, map);
-        //         }
-        //     }
-        // }
-    }
-
 }
 
 module.exports = { TaskService };

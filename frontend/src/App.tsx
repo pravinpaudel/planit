@@ -22,12 +22,12 @@ function App() {
         <Notifications />
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          
+          <Route path="shared/:sharedId" element={<RoadmapPage />} />
           {/* Public Routes */}
           <Route element={<PublicRoute />}>
             <Route path="login" element={<LoginPage />} />
             <Route path="register" element={<RegisterPage />} />
-            <Route path="shared/:sharedId" element={<RoadmapPage />} />
+            
           </Route>
           
           {/* Protected Routes */}
