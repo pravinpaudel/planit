@@ -92,7 +92,14 @@ class TaskService {
 
             return await prismaClient.task.update({
                 where: { id: taskId },
-                data: payload
+                data: payload,
+                include: {
+                    milestones: {
+                        include: {
+                            children: true
+                        }
+                    }
+                }
             });
         } catch (error) {
             console.error("Error updating task:", error);

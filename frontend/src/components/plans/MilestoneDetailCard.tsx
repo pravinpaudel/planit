@@ -24,7 +24,7 @@ const MilestoneDetailCard: React.FC<MilestoneDetailCardProps> = ({
   } = useMemo(() => {
     const status = statusConfig[milestone.status];
     const isCompleted = milestone.status === 'COMPLETED' || milestone.isComplete;
-    const daysUntilDeadline = Math.ceil((new Date(milestone.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+    const daysUntilDeadline = milestone.deadline ? Math.ceil((new Date(milestone.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 0;
     const isOverdue = daysUntilDeadline < 0 && !isCompleted;
     const creationDate = formatDate(milestone.createdAt);
     
@@ -87,9 +87,11 @@ const MilestoneDetailCard: React.FC<MilestoneDetailCardProps> = ({
           <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
             <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             <div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">Deadline</div>
+              {milestone.deadline && (
+                <div className="text-xs text-gray-500 dark:text-gray-400">Deadline</div>
+              )}
               <div className="font-medium">
-                {formatDate(milestone.deadline)}
+                {milestone.deadline && formatDate(milestone.deadline)}
                 {!isCompleted && daysUntilDeadline > 0 && (
                   <span className="text-sm text-gray-500 ml-2">({daysUntilDeadline} days left)</span>
                 )}
@@ -124,7 +126,7 @@ const MilestoneDetailCard: React.FC<MilestoneDetailCardProps> = ({
                   >
                     <div>
                       <div className="font-medium text-sm">{child.title}</div>
-                      <div className="text-xs text-gray-500">{formatDate(child.deadline)}</div>
+                      <div className="text-xs text-gray-500">{child.deadline && formatDate(child.deadline)}</div>
                     </div>
                     <Badge 
                       variant="outline" 

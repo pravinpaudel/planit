@@ -8,7 +8,7 @@ export interface Milestone {
   taskId: string;  // This is the parent task/plan ID
   status: MilestoneStatus;
   isComplete?: boolean; // Legacy field for backward compatibility
-  deadline: string; // ISO format date
+  deadline?: string; // ISO format date
   createdAt: string; // ISO format date
   updatedAt: string; // ISO format date
   parentId?: string | null; // For hierarchical milestones - null for top-level
@@ -47,7 +47,7 @@ export interface UpdatePlanData {
 export interface CreateMilestoneData {
   title: string;
   description: string;
-  deadline: string; // ISO format date or YYYY-MM-DD
+  deadline?: string; // ISO format date or YYYY-MM-DD
   taskId: string;
   status?: MilestoneStatus;
   parentId?: string | null; // For hierarchical milestones

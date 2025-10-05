@@ -78,7 +78,7 @@ model Milestone {
   task        Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
   taskId      String          @map("task_id")
   status      MilestoneStatus @default(NOT_STARTED) @map("status")
-  deadline    DateTime   
+  deadline    DateTime?   
   
   // Self-relation for parent-child hierarchy
   parentId    String?         @map("parent_id")

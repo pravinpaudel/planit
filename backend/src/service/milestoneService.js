@@ -13,8 +13,8 @@ class MilestoneService {
      */
     static async createMilestone(data) {
         const { title, description, deadline, taskId, parentId, status } = data;
-        if(!title || !description || !deadline || !taskId) {
-            throw new Error('Missing required fields: title, description, deadline, taskId');
+        if(!title || !description || !taskId) {
+            throw new Error('Missing required fields: title, description, taskId');
         }
         if (description && typeof description !== 'string') {
             throw new Error("Description must be a string");
@@ -31,7 +31,7 @@ class MilestoneService {
                 data: {
                     title,
                     description,
-                    deadline: new Date(deadline),
+                    deadline: deadline ? new Date(deadline) : undefined,
                     taskId,
                     status: milestoneStatus,
                     parentId: parentId || null // Optional parent ID for sub-milestones
@@ -41,6 +41,7 @@ class MilestoneService {
             // Transform to add backward compatibility fields
             return this._transformMilestoneData(newMilestone);
         } catch (error) {
+            console.error("❌ Error creating milestone:", error);
             throw new Error("Error creating milestone: " + error.message);
         }
     }
