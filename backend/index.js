@@ -18,13 +18,13 @@ async function startServer() {
   try {
     // Verify database connection
     await prismaClient.$connect();
-    console.log('Connected to the database');
+    console.log('✅ Connected to the database');
     
     app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 }
@@ -33,7 +33,7 @@ async function startServer() {
 process.on('SIGINT', async () => {
   console.log('Shutting down server...');
   await prismaClient.$disconnect();
-  console.log('Database disconnected');
+  console.log('✅ Database disconnected');
   process.exit(0);
 });
 
