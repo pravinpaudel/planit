@@ -75,9 +75,11 @@ const PlanDetailPage = () => {
     const completedMilestones = allMilestones.filter(
       (m) => m.isComplete
     ).length;
+    const delayedMilestones = allMilestones.filter((m) => m.status === "DELAYED").length;
     return {
       total: totalMilestones,
       completed: completedMilestones,
+      delayed: delayedMilestones,
       percentage:
         totalMilestones > 0
           ? Math.round((completedMilestones / totalMilestones) * 100)
@@ -331,28 +333,6 @@ const PlanDetailPage = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6"
           >
-            <Card className="milestone-card animate-fade-in hover:shadow-xl transition-all duration-300">
-              <div className="absolute top-2 right-2">
-                {/* <Badge variant="outline" className="text-green-600 border-green-200">
-                                    10% from last month
-                                </Badge> */}
-              </div>
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20">
-                    <Calendar className="w-5 h-5 text-blue-500" />
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xl font-bold mb-0.5">
-                    {formatDate(activePlan.createdAt)}
-                  </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Plan creation date
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
 
             <Card
               className="milestone-card animate-fade-in hover:shadow-xl transition-all duration-300"
@@ -390,15 +370,41 @@ const PlanDetailPage = () => {
                     </div>
                   </div>
                   <div className="text-xs font-medium px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
-                    Total
+                    Upcoming Milestones
                   </div>
                 </div>
                 <div>
                   <p className="text-xl font-bold mb-0.5">
-                    {milestoneStats.total}
+                    {upcomingMilestones.length}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
                     Milestones
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+             <Card className="milestone-card animate-fade-in hover:shadow-xl transition-all duration-300">
+              <div className="absolute top-2 right-2">
+                {/* <Badge variant="outline" className="text-green-600 border-green-200">
+                                    10% from last month
+                                </Badge> */}
+              </div>
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className={`p-2 rounded-lg ${getStatusBackgroundColor('DELAYED')}`}>
+                    {statusConfig.DELAYED.icon}
+                  </div>
+                  <div className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusConfig.DELAYED.color}`}>
+                    {statusConfig.DELAYED.label}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xl font-bold mb-0.5">
+                    {milestoneStats.delayed}
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Delayed Milestones
                   </p>
                 </div>
               </CardContent>
@@ -419,7 +425,11 @@ const PlanDetailPage = () => {
                 </div>
                 <div>
                   <p className="text-xl font-bold mb-0.5">
-                    {milestoneStats.completed} / {milestoneStats.total}
+                    {milestoneStats.total > 0 ? (
+                      <span>{milestoneStats.percentage}%</span>
+                    ) : (
+                      <span>0%</span>
+                    )}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
                     Progress

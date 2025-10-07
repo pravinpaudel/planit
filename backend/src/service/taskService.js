@@ -25,6 +25,13 @@ class TaskService {
                     title,
                     description,
                     userId
+                },
+                include: {
+                    milestones: {
+                        include: {
+                            children: true
+                        }
+                    }
                 }
             });
         } catch (error) {

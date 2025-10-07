@@ -31,7 +31,7 @@ async function authenticateToken(req, res, next) {
         
         next();
     } catch (error) {
-        console.error("Error verifying token:", error);
+        console.error("❌ Error verifying token:", error);
         if (error.name === 'TokenExpiredError') {
             return res.status(401).json({ 
                 error: "Token expired", 

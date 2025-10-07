@@ -63,7 +63,7 @@ const DashboardPage = () => {
 
   const statsItems = [
     {
-      title: 'Active Goals',
+      title: 'Active Tasks',
       value: '0',
       icon: <Target className="h-8 w-8 text-blue-500" />,
       color: 'bg-blue-50 dark:bg-blue-900/20'
@@ -81,7 +81,7 @@ const DashboardPage = () => {
       color: 'bg-purple-50 dark:bg-purple-900/20'
     },
     {
-      title: 'Hours Tracked',
+      title: 'Task Completion Rate',
       value: '0',
       icon: <Clock className="h-8 w-8 text-amber-500" />,
       color: 'bg-amber-50 dark:bg-amber-900/20'

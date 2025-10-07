@@ -1,4 +1,6 @@
 import React from "react";
+import { statusConfig } from "../../../utils/milestoneUtils";
+import { MilestoneStatus } from "../../../types";
 
 interface StatusLegendProps {
   isFullScreen?: boolean;
@@ -8,13 +10,10 @@ interface StatusLegendProps {
  * Status Legend component showing different milestone statuses and their colors
  */
 const StatusLegend: React.FC<StatusLegendProps> = ({ isFullScreen = false }) => {
-  const statuses = [
-    { name: "Not Started", color: "#94a3b8" },
-    { name: "In Progress", color: "#3b82f6" },
-    { name: "Completed", color: "#22c55e" },
-    { name: "At Risk", color: "#f59e0b" },
-    { name: "Delayed", color: "#ef4444" },
-  ];
+  const statuses = Object.entries(statusConfig).map(([key, config]) => ({
+    name: config.label,
+    color: config.ribbonColor,
+  }));
 
   return (
     <div

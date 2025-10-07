@@ -28,7 +28,7 @@ export const statusConfig: Record<MilestoneStatus, {
     icon: <CheckCircle className="h-5 w-5" />, 
     color: 'bg-green-50 text-green-600 border-green-500 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800', 
     label: 'Completed',
-    ribbonColor:  "#94a3b8"
+    ribbonColor:  "#059669"
   },
   AT_RISK: { 
     icon:  <ShieldAlert className="h-5 w-5" />, 
@@ -37,7 +37,7 @@ export const statusConfig: Record<MilestoneStatus, {
     ribbonColor: "#ef4444"
   },
   DELAYED: { 
-    icon: <Clock className="h-5 w-5" />, 
+    icon: <Clock className="h-5 w-5 text-amber-500" />, 
     color: 'bg-amber-50 text-amber-600 border-amber-500 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800', 
     label: 'Delayed',
     ribbonColor: "#f59e0b"

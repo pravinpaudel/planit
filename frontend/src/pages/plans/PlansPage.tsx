@@ -139,7 +139,7 @@ const PlansPage = () => {
               <Button 
                 variant="default"
                 size="md"
-                onClick={() => navigate('/plans/create')}
+                onClick={() => setIsModalOpen(true)}
                 className="flex items-center gap-2"
               >
                 <Plus size={16} />
@@ -163,7 +163,7 @@ const PlansPage = () => {
               </div>
               <Button 
                 variant="default" 
-                onClick={() => navigate('/plans/create')} 
+                onClick={() => setIsModalOpen(true)} 
                 className="flex items-center gap-2"
               >
                 <Plus size={16} />
@@ -325,12 +325,10 @@ const PlansPage = () => {
           title={editingPlan ? "Edit Plan" : "Create Plan"}
           size="md"
         >
-          {editingPlan && (
-            <PlanForm
-              onClose={handleCloseModal}
-              existingPlan={editingPlan}
-            />
-          )}
+          <PlanForm
+            onClose={handleCloseModal}
+            existingPlan={editingPlan ? editingPlan : undefined}
+          />
         </Modal>
         
         {/* Share Plan Modal - Using reusable component */}

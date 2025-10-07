@@ -63,6 +63,7 @@ declare module 'lucide-react' {
   export const EyeOff: React.FC<IconProps>;
   export const RefreshCw: React.FC<IconProps>;
   export const LockOpen: React.FC<IconProps>;
+  export const Folders: React.FC<IconProps>;
 }
 
 export {};
