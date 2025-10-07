@@ -150,7 +150,7 @@ const DashboardPage = () => {
           >
             <Card className="col-span-1 md:col-span-2">
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Upcoming Goals & Milestones</CardTitle>
+                <CardTitle>Upcoming Milestones</CardTitle>
                 <Link to="/plans">
                   <Button variant="outline" size="sm" className="h-8 gap-1">
                     <Folders className="h-4 w-4" />
@@ -190,7 +190,7 @@ const DashboardPage = () => {
                       onClick={handleOpenModal}
                     >
                       <Plus className="h-3.5 w-3.5 mr-1" />
-                      Create a new goal
+                      Create a new task
                     </Badge>
                   </div>
                   <p className="text-sm">

@@ -284,7 +284,7 @@ const PlansPage = () => {
                               <div className="flex items-center gap-4">
                                 <div className="flex items-center">
                                   <div className="h-3 w-3 rounded-full bg-green-500 mr-1.5"></div>
-                                  <span className="text-xs text-gray-600 dark:text-gray-300">{progress.completed} Complete</span>
+                                  <span className="text-xs text-gray-600 dark:text-gray-300">{progress.completed} Completed</span>
                                 </div>
                                 <div className="flex items-center">
                                   <div className="h-3 w-3 rounded-full bg-gray-300 dark:bg-gray-600 mr-1.5"></div>
