@@ -14,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Enable if your app is behind a reverse proxy (like Nginx or Heroku)
+// Enable if app is behind a reverse proxy (like Nginx or Heroku)
 // This ensures rate limiting works correctly with the actual client IP
 app.set('trust proxy', 1);
 

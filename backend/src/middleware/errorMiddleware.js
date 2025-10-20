@@ -4,7 +4,7 @@
 const { formatErrorResponse } = require('../utils/errors');
 
 function errorHandler(err, req, res, next) {
-  console.error(`[${new Date().toISOString()}] Error:`, err);
+  console.error(`❌ [${new Date().toISOString()}] Error:`, err);
   
   // Format the error response
   const { status, body } = formatErrorResponse(err);

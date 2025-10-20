@@ -154,7 +154,7 @@ const DashboardPage = () => {
                 <Link to="/plans">
                   <Button variant="outline" size="sm" className="h-8 gap-1">
                     <Folders className="h-4 w-4" />
-                    Manage Plans
+                    Manage Tasks
                   </Button>
                 </Link>
               </CardHeader>

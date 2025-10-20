@@ -75,7 +75,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
           milestoneData: { 
             title, 
             description, 
-            deadline: new Date(deadline).toISOString(), 
+            deadline: (deadline ? new Date(deadline).toISOString() : undefined), 
             status,
             parentId
           }
