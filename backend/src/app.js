@@ -6,6 +6,7 @@ const cors = require('cors');
 const userRoute = require('./routes/userRoute');
 const taskRoute = require('./routes/taskRoute');
 const milestoneRoute = require('./routes/milestoneRoute');
+const analyticsRoute = require('./routes/analyticsRoute');
 const errorHandler = require('./middleware/errorMiddleware');
 
 const app = express();
@@ -30,6 +31,7 @@ if (process.env.NODE_ENV !== 'test') {
 app.use('/api/users', userRoute);
 app.use('/api/tasks', taskRoute);
 app.use('/api/milestones', milestoneRoute);
+app.use('/api/analytics', analyticsRoute);
 
 app.get('/', (req, res) => {
   res.send('Welcome to the backend server!');
