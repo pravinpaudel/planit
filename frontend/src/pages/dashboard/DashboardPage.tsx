@@ -434,44 +434,6 @@ const DashboardPage = () => {
               </Card>
             </motion.div>
           </div>
-
-          {/* Quick Stats Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-          >
-            <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-800 border-0">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {dashboardStats?.totalPlans || 0}
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Total Plans</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {dashboardStats?.totalMilestones || 0}
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Total Milestones</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {dashboardStats?.completedMilestones || 0}
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Completed</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {dashboardStats?.dueToday || 0}
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Due Today</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
         </div>
 
         <AnimatePresence>
