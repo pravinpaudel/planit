@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './store';
 import { ProtectedRoute, PublicRoute } from './components/shared/ProtectedRoute';
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/react"
 
 // Pages
 import LoginPage from './pages/auth/LoginPage';
