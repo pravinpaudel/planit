@@ -14,6 +14,7 @@ import {
   Plus,
   Target,
   Calendar,
+  MoreVertical,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import {
@@ -21,6 +22,7 @@ import {
   deletePlan,
   updateMilestone,
   updatePlan,
+  deleteMilestone,
 } from "../../features/plans/planThunks";
 import {
   selectActivePlan,
@@ -61,6 +63,7 @@ const PlanDetailPage = () => {
   );
   const [isEditing, setIsEditing] = useState(false);
   const [showEditPlanModal, setShowEditPlanModal] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const MILESTONES_TO_DISPLAY = 5; // Number of milestones to display in the upcoming section
 
@@ -143,6 +146,37 @@ const PlanDetailPage = () => {
     setShowMilestoneModal(true);
   };
 
+  // Handle deleting a milestone
+  const handleDeleteMilestoneClick = (milestoneId: string) => {
+    if (window.confirm("Are you sure you want to delete this milestone? This action cannot be undone.")) {
+      if (!planId) return;
+      dispatch(deleteMilestone({ milestoneId, taskId: planId }))
+        .then(() => {
+          dispatch(
+            addNotification({
+              type: "success",
+              title: "Milestone Deleted",
+              message: "The milestone has been deleted successfully.",
+            })
+          );
+          setOpenMenuId(null);
+          // Refresh the plan data
+          if (planId) {
+            dispatch(fetchPlanById(planId));
+          }
+        })
+        .catch((error) => {
+          dispatch(
+            addNotification({
+              type: "error",
+              title: "Error",
+              message: `Failed to delete milestone: ${error.message || "Unknown error"}`,
+            })
+          );
+        });
+    }
+  };
+
 
   // Handle plan update success
   const handlePlanUpdateSuccess = () => {
@@ -199,6 +233,18 @@ const PlanDetailPage = () => {
     setSelectedMilestone(null);
     setViewingMilestone(null);
   };
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setOpenMenuId(null);
+    };
+    
+    if (openMenuId) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [openMenuId]);
 
   useEffect(() => {
     if (!planId) return;
@@ -482,7 +528,7 @@ const PlanDetailPage = () => {
               <div className="space-y-4">
                 {/* Using memoized upcomingMilestones to avoid redundant calculations */}
                 {upcomingMilestones.map((milestone, index) => (
-                  <div key={`${milestone.id}`}>
+                  <div key={`${milestone.id}`} className="relative">
                     <Card
                       className={`transition-all hover:shadow-md hover:border-roadmap-primary/50 relative overflow-hidden`}
                       hover={true}
@@ -543,7 +589,7 @@ const PlanDetailPage = () => {
                             )}
                           </div>
 
-                          <div className="flex space-x-2">
+                          <div className="flex space-x-2 items-center">
                             <Button
                               variant={
                                 milestone.isComplete ? "success" : "outline"
@@ -564,18 +610,44 @@ const PlanDetailPage = () => {
                             <Button
                               variant="ghost"
                               size="xs"
-                              className="text-gray-500 hover:text-roadmap-primary"
+                              className="text-gray-500 hover:text-roadmap-primary p-1"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleEditMilestone(milestone.id);
+                                setOpenMenuId(openMenuId === milestone.id ? null : milestone.id);
                               }}
                             >
-                              <Edit size={14} />
+                              <MoreVertical size={16} />
                             </Button>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
+                    {/* Dropdown menu rendered outside card to avoid overflow clipping */}
+                    {openMenuId === milestone.id && (
+                      <div className="absolute right-0 -top-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+                        <button
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-t-lg"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditMilestone(milestone.id);
+                            setOpenMenuId(null);
+                          }}
+                        >
+                          <Edit size={14} />
+                          Edit
+                        </button>
+                        <button
+                          className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-b-lg"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteMilestoneClick(milestone.id);
+                          }}
+                        >
+                          <Trash size={14} />
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

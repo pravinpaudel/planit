@@ -150,11 +150,7 @@ const D3TreeVisualization: React.FC<D3TreeVisualizationProps> = ({
         const pos = nodePositions[d.data.id];
         return `translate(${pos?.x ?? d.x},${pos?.y ?? d.y})`;
       })
-      .call(d => {
-        d.filter(dd => dd.data.id !== "virtual-root")
-          .call(drag as any);
-      })
-      .style("cursor", d => d.data.id !== "virtual-root" ? "grab" : "default")
+      .style("cursor", "default")
       .on("click", (event, d) => {
         if (d.data.id !== "virtual-root") onMilestoneClick(d.data.id);
       });

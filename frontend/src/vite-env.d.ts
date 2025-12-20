@@ -38,6 +38,7 @@ declare module 'lucide-react' {
   export const Loader2: any;
   export const ShieldAlert: any;
   export const Fullscreen: any;
+  export const Minimize: any;
   // Add other icon exports as needed
 }
 
