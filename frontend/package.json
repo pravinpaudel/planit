@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^5.1.1",
     "@reduxjs/toolkit": "^2.8.2",
     "@types/d3": "^7.4.3",
+    "@vercel/analytics": "^1.6.1",
     "axios": "^1.6.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

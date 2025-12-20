@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './store';
 import { ProtectedRoute, PublicRoute } from './components/shared/ProtectedRoute';
+import { Analytics } from "@vercel/analytics/next"
 
 // Pages
 import LoginPage from './pages/auth/LoginPage';
@@ -18,6 +19,7 @@ import { Notifications } from './components/shared/Notifications';
 function App() {
   return (
     <Provider store={store}>
+      <Analytics />
       <BrowserRouter>
         <Notifications />
         <Routes>
