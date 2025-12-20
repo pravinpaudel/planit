@@ -19,7 +19,8 @@
     "test:e2e": "NODE_ENV=test jest tests/e2e",
     "test:e2e:debug": "DEBUG_TESTS=true NODE_ENV=test jest tests/e2e",
     "test:ci": "jest --ci --coverage",
-    "find-untested": "./find-untested-files.sh"
+    "find-untested": "./find-untested-files.sh",
+    "postinstall": "prisma generate"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
