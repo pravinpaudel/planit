@@ -115,7 +115,8 @@ const D3TreeVisualization: React.FC<D3TreeVisualizationProps> = ({
     const treeLayout = d3.tree<Milestone>()
       .size([width * 0.95, height * 0.7])
       .separation((a, b) => (a.parent === b.parent ? 4.5 : 6.0));
-    const root = treeLayout(hierarchy);
+    if (!hierarchyData) return;
+    const root = treeLayout(hierarchyData);
 
     // Configure drag behavior
     const drag = d3.drag<SVGGElement, d3.HierarchyPointNode<Milestone>>()
@@ -199,7 +200,7 @@ const D3TreeVisualization: React.FC<D3TreeVisualizationProps> = ({
   }, [milestones, selectedMilestone, onMilestoneClick, onEditMilestone, planTitle, nodePositions, handleNodeDrag]);
 
   // Helper function to render milestone cards
-  const renderMilestoneCards = (selection: d3.Selection<SVGGElement, d3.HierarchyPointNode<Milestone>, null, unknown>) => {
+  const renderMilestoneCards = (selection: d3.Selection<SVGGElement, d3.HierarchyPointNode<Milestone>, SVGGElement, unknown>) => {
     // Main cards
     selection.append("rect")
       .attr("width", CARD_WIDTH).attr("height", CARD_HEIGHT)
@@ -246,7 +247,7 @@ const D3TreeVisualization: React.FC<D3TreeVisualizationProps> = ({
     // Progress bar or deadline info
     selection.each(function(d) {
       const status = (d.data.status || "NOT_STARTED") as MilestoneStatus;
-      const node = d3.select(this);
+      const node = d3.select(this) as any;
       
       if (status === "IN_PROGRESS") {
         renderProgressBar(node);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Calendar, CheckCircle, X, Target, Edit, ShieldAlert } from 'lucide-react';
+import { Clock, CheckCircle, X, Target, Edit, ShieldAlert } from 'lucide-react';
 import { MilestoneStatus, Milestone } from '../types';
 
 /**
@@ -100,6 +100,6 @@ export const getAllMilestones = (milestones: Milestone[] = []): Milestone[] => {
  * @returns An array of upcoming milestones sorted by deadline
  */
 export const getUpcomingMilestones = (milestones: Milestone[]): Milestone[] => {
-    return milestones.filter(milestone => milestone.status !== "COMPLETED")
-        .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+    return milestones.filter(milestone => milestone.status !== "COMPLETED" && milestone.deadline)
+        .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime());
 };

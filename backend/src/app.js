@@ -14,7 +14,7 @@ const app = express();
 // Middleware
 app.use(cors({
   origin: [
-    process.env.FRONTEND_URL || 'http://localhost:3000',
+    process.env.FRONTEND_URL || 'http://localhost:5173',
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
@@ -40,7 +40,7 @@ app.use('/api/milestones', milestoneRoute);
 app.use('/api/analytics', analyticsRoute);
 
 app.get('/', (req, res) => {
-  res.send('Welcome to the backend server!');
+  res.send('<h2>Welcome to the backend server!</h2>');
 });
 
 // Error handler middleware - must be last

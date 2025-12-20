@@ -174,7 +174,7 @@ export function useD3TreeVisualization({
       } 
       // Milestone nodes
       else {
-        renderMilestoneCard(nodeGroup, d);
+        renderMilestoneCard(nodeGroup as any, d);
       }
     });
 
